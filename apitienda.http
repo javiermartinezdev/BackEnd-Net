@@ -1,0 +1,6 @@
+@apitienda_HostAddress = http://localhost:5285
+
+GET {{apitienda_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
