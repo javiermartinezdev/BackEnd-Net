@@ -79,7 +79,17 @@ public sealed class MessageService //sealed aseguramos que no puedan heredar de 
             {"AddAsyncUser201","Usuario creado exitosamente ."},
             {"DeactivateUserAsyncUser400","El usuario ya estaba activo ."},
             {"DeactivateUserAsyncUser200","Usuario activado exitosamente ."},
-            {"UpdateAsyncUser200","Usuario actualizado exitosamente ."}
+            {"UpdateAsyncUser200","Usuario actualizado exitosamente ."},
+            {"UpdatePartialAsyncUser200","Usuario actualizado exitosamente ."},
+            {"VerifyEmailAsyncUser400","El email ya estaba verificado ."},
+            {"ChangePasswordAsyncUser400","La contraseña actual no es correcta ."},
+            {"ChangePasswordAsyncUser400Size","La nueva contraseña debe tener al menos 8 caracteres y contener letras y números."},
+            {"ChangePasswordAsyncUser400Confirmation","La nueva contraseña y la confirmación no coinciden ."},
+            {"ChangePasswordAsyncUser200","Contraseña cambiada exitosamente ."},
+            {"RequestPasswordResetAsyncUser404","No se encontró una cuenta con ese email ."},
+            {"RequestPasswordResetAsyncUser400","El email no ha sido verificado ."},
+            {"RequestPasswordResetAsyncUser500","Error al enviar el correo de restablecimiento ."},
+            {"RequestPasswordResetAsyncUser200","Se ha enviado un correo con el enlace de restablecimiento."}
         };
     }
 

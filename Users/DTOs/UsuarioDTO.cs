@@ -1,5 +1,6 @@
 using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -10,13 +11,18 @@ using System.Threading.Tasks;
 public class UsuarioDTO
 {
     public Guid id { get; set; }
-    public string username { get; set; }
+    
+    [Required]
+    public required string username { get; set; }
     public string? email { get; set; }
     public DateTimeOffset date_joined { get; set; }
-    public string first_name { get; set; }
-    public string last_name { get; set; }
+    [Required]
+    public required string first_name { get; set; }
+    [Required]
+    public required string last_name { get; set; }
     public string? nationality { get; set; }
-    public string password { get; set; }
+    [Required]
+    public required string password { get; set; }
     public DateTimeOffset? last_login { get; set; }
     public bool is_superuser { get; set; }
     public bool is_active { get; set; }

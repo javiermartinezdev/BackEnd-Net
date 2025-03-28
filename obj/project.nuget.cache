@@ -1,8 +1,8 @@
 {
   "version": 2,
-  "dgSpecHash": "Z9r+hUhQaOw=",
+  "dgSpecHash": "orl9WO89DuI=",
   "success": true,
-  "projectFilePath": "/home/octaviio/Imágenes/BackEnd-Net/apitienda.csproj",
+  "projectFilePath": "/home/octaviio/Documentos/BackEnd-Net/apitienda.csproj",
   "expectedPackageFiles": [
     "/home/octaviio/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
     "/home/octaviio/.nuget/packages/dapper/2.1.66/dapper.2.1.66.nupkg.sha512",

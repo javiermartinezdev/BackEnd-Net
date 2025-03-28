@@ -136,6 +136,11 @@ public class ProductService : IProductService
             return new NotFoundObjectResult(new ApiResponse<string>(404, MessageService.Instance.GetMessage("ProductPartialUpdate404")));
         }
 
+        if(product.is_deleted)
+        {
+            return new BadRequestObjectResult(new ApiResponse<string>(400, MessageService.Instance.GetMessage("ProductPartialUpdate400")));
+        }
+        
         if(productPartialUpdate.price <= 0){
             return new BadRequestObjectResult(new ApiResponse<string>(400, MessageService.Instance.GetMessage("controllerProductDTO400")));
         }

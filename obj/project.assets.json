@@ -8637,11 +8637,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "/home/octaviio/Imágenes/BackEnd-Net/apitienda.csproj",
+      "projectUniqueName": "/home/octaviio/Documentos/BackEnd-Net/apitienda.csproj",
       "projectName": "apitienda",
-      "projectPath": "/home/octaviio/Imágenes/BackEnd-Net/apitienda.csproj",
+      "projectPath": "/home/octaviio/Documentos/BackEnd-Net/apitienda.csproj",
       "packagesPath": "/home/octaviio/.nuget/packages/",
-      "outputPath": "/home/octaviio/Imágenes/BackEnd-Net/obj/",
+      "outputPath": "/home/octaviio/Documentos/BackEnd-Net/obj/",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "/home/octaviio/.nuget/NuGet/NuGet.Config"

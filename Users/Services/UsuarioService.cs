@@ -52,17 +52,14 @@ public class UsuarioService
         }
     
         usuario.is_active = true;
+        
         var usuarioActivado = _usuarioMapper.ToDTO(usuario);
-        await this.UpdateAsync(usuarioActivado);
-       
-        var resultado = new UsuarioDTO
-            {
-                id = usuario.id,
-                username = usuario.username,
-                is_active = usuario.is_active
-            };
+        
+        await _usuarioDAO.UpdateAsync(usuario);
+        
+        var resultado = new UsuarioDTOResponce(id,usuarioActivado);
 
-        return new OkObjectResult(new ApiResponse<UsuarioDTO>(200,MessageService.Instance.GetMessage("ActivateUserUser200"),resultado));
+        return new OkObjectResult(new ApiResponse<UsuarioDTOResponce>(200,MessageService.Instance.GetMessage("ActivateUserUser200"),resultado));
     }
 
     /// <summary>
@@ -92,18 +89,10 @@ public class UsuarioService
 
         var usuario = _usuarioMapper.ToEntity(usuarioDTO); 
         await _usuarioDAO.AddAsync(usuario); 
-       
-        var resultado = new UsuarioDTO{
-            id = usuario.id,
-            username = usuario.username,
-            email = usuario.email,
-            first_name = usuario.first_name,
-            last_name = usuario.last_name,
-            is_active = usuario.is_active,
-            role = usuario.role
-        };
+
+        var resultado = new UsuarioDTOResponceExtends(usuario.id,usuarioDTO);
         
-        return new CreatedResult("", new ApiResponse<UsuarioDTO>(201, MessageService.Instance.GetMessage("AddAsyncUser201"),resultado));
+        return new CreatedResult("", new ApiResponse<UsuarioDTOResponceExtends>(201, MessageService.Instance.GetMessage("AddAsyncUser201"),resultado));
     }
 
     /// <summary>
@@ -125,17 +114,10 @@ public class UsuarioService
 
         _usuarioDAO.Detach(usuarioExistente);
         await _usuarioDAO.UpdateAsync(usuario);
-        var resultado = new UsuarioDTO{
-            id = usuario.id,
-            username = usuario.username,
-            email = usuario.email,
-            first_name = usuario.first_name,
-            last_name = usuario.last_name,
-            is_active = usuario.is_active,
-            role = usuario.role
-        };
 
-        return new OkObjectResult(new ApiResponse<UsuarioDTO>(200,MessageService.Instance.GetMessage("UpdateAsyncUser200"),resultado));
+        var resultado = new UsuarioDTOResponceExtends(usuario.id,usuarioDTO);
+
+        return new OkObjectResult(new ApiResponse<UsuarioDTOResponceExtends>(200,MessageService.Instance.GetMessage("UpdateAsyncUser200"),resultado));
     }
 
     /// <summary>
@@ -164,10 +146,33 @@ public class UsuarioService
     /// <param name="id">El identificador único del usuario a actualizar.</param>
     /// <param name="usuarioDTO">Los datos del usuario en formato DTO.</param>
     /// <returns>Una tarea que representa la operación de actualización parcial.</returns>
-    public async Task UpdatePartialAsync(Guid id, UsuarioDTO usuarioDTO)
+    public async Task<IActionResult> UpdatePartialAsync(Guid id, UsuarioPatchDTO usuarioDTO)
     {
-        var usuarioParcial = _usuarioMapper.ToEntity(usuarioDTO); // Convierte el DTO en una entidad.
-        await _usuarioDAO.UpdatePartialAsync(id, usuarioParcial); // Actualiza parcialmente la entidad en la base de datos.
+        
+
+        var existingUser = await _usuarioDAO.GetByIdAsync(id);
+        if (existingUser == null)
+        {
+            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("UpdatePartialAsyncUser404")));
+        }
+
+        if(existingUser.is_deleted)
+        {
+            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("UpdatePartialAsyncUser400")));
+        }
+        
+        //Actualiza parcialmente el usuario
+        existingUser.first_name = usuarioDTO.first_name ?? existingUser.first_name;
+        existingUser.last_name = usuarioDTO.last_name ?? existingUser.last_name;
+        existingUser.email = usuarioDTO.email ?? existingUser.email;
+
+        existingUser.modified_at = DateTimeOffset.UtcNow;
+        await _usuarioDAO.UpdateAsync(existingUser); // Guarda los cambios en la base de datos
+        
+        var resultado = _usuarioMapper.ToDTO(existingUser); // Convierte la entidad actualizada a DTO
+        var resultadoDTO = new UsuarioDTOResponceExtends(id, resultado); // Crea un nuevo DTO de respuesta
+        
+        return new OkObjectResult(new ApiResponse<UsuarioDTOResponceExtends>(200,MessageService.Instance.GetMessage("UpdatePartialAsyncUser200"),resultadoDTO));
     }
 
     /// <summary>
@@ -202,26 +207,28 @@ public class UsuarioService
     /// <param name="id">El identificador único del usuario.</param>
     /// <returns>El DTO del usuario actualizado, o null si el usuario no existe.</returns>
     /// <exception cref="InvalidOperationException">Se lanza si el correo ya estaba verificado.</exception>
-    public async Task<UsuarioDTO?> VerifyEmailAsync(Guid id)
+    public async Task<IActionResult> VerifyEmailAsync(Guid id)
     {
         var usuario = await _usuarioDAO.GetByIdAsync(id); // Busca el usuario en la base de datos
 
         if (usuario == null)
         {
-            return null; // Retorna null si el usuario no existe (404)
+            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("controllerUser404")));
         }
 
         if (usuario.email_verified)
         {
-            throw new InvalidOperationException("El email ya estaba verificado."); // Lanza excepción si ya está verificado (400)
+            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("VerifyEmailAsyncUser400"))); 
         }
 
         usuario.email_verified = true;
-        usuario.email_verified_at = DateTime.UtcNow; // Establece la fecha y hora actual en UTC
+        usuario.email_verified_at = DateTime.UtcNow; 
 
-        await _usuarioDAO.UpdateAsync(usuario); // Guarda los cambios en la base de datos
+        await _usuarioDAO.UpdateAsync(usuario); 
+        
+        var resultado = new UsuarioDTOVerifiedEmail(id,usuario);
 
-        return _usuarioMapper.ToDTO(usuario); // Retorna el usuario actualizado como DTO
+        return new OkObjectResult(new ApiResponse<UsuarioDTOVerifiedEmail>(200,MessageService.Instance.GetMessage("VerifyEmailAsyncUser200"),resultado));
     }
     /// <summary>
     /// Desactiva un usuario estableciendo is_active en false.
@@ -247,12 +254,10 @@ public class UsuarioService
         await _usuarioDAO.UpdateAsync(usuario);
 
         var usuarioActivado = _usuarioMapper.ToDTO(usuario); 
-        var resultado = new UsuarioDTO{
-            id = usuarioActivado.id,
-            username = usuarioActivado.username,
-            is_active = usuarioActivado.is_active
-        };
-        return new OkObjectResult(new ApiResponse<UsuarioDTO>(200,"DeactivateUserAsyncUser200",resultado));
+
+        var resultado = new UsuarioDTOResponce(id,usuarioActivado);
+        
+        return new OkObjectResult(new ApiResponse<UsuarioDTOResponce>(200,"DeactivateUserAsyncUser200",resultado));
     }
     
     /// <summary>
@@ -264,13 +269,13 @@ public class UsuarioService
     /// <exception cref="KeyNotFoundException">Se lanza si el usuario no existe.</exception>
     /// <exception cref="InvalidOperationException">Se lanza si la contraseña actual es incorrecta, 
     /// la nueva contraseña no cumple los requisitos o las contraseñas no coinciden.</exception>
-    public async Task<bool> ChangePasswordAsync(Guid id, ChangePasswordDTO model)
+    public async Task<IActionResult> ChangePasswordAsync(Guid id, ChangePasswordDTO model)
     {
         var usuario = await _usuarioDAO.GetByIdAsync(id);
         
         if (usuario == null)
         {
-            throw new KeyNotFoundException("Usuario no encontrado.");
+            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("controllerUser404")));
         }
 
         // Si la contraseña almacenada NO tiene formato BCrypt, la hasheamos primero
@@ -283,40 +288,40 @@ public class UsuarioService
         // Verificar que la contraseña actual sea correcta
         if (!BCrypt.Net.BCrypt.Verify(model.CurrentPassword, usuario.password))
         {
-            throw new InvalidOperationException("La contraseña actual no es correcta.");
+            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("ChangePasswordAsyncUser400")));
         }
 
         // Validar que la nueva contraseña cumple con seguridad
         if (model.NewPassword.Length < 8 || !model.NewPassword.Any(char.IsDigit) || !model.NewPassword.Any(char.IsLetter))
         {
-            throw new InvalidOperationException("La nueva contraseña debe tener al menos 8 caracteres y contener letras y números.");
+            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("ChangePasswordAsyncUser400Size")));
         }
 
         // Validar que la confirmación coincida con la nueva contraseña
         if (model.NewPassword != model.ConfirmPassword)
         {
-            throw new InvalidOperationException("La nueva contraseña y la confirmación no coinciden.");
+            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("ChangePasswordAsyncUser400Confirmation")));
         }
 
         // Hashear la nueva contraseña antes de guardarla
         usuario.password = BCrypt.Net.BCrypt.HashPassword(model.NewPassword, 12);
         await _usuarioDAO.UpdateAsync(usuario);
 
-        return true;
+        return new OkObjectResult(new ApiResponse<string>(200,MessageService.Instance.GetMessage("ChangePasswordAsyncUser200")));  
     }
 
-    public async Task<(int codigo, string mensaje)> RequestPasswordResetAsync(string email)
+    public async Task<IActionResult> RequestPasswordResetAsync(string email)
     {
         var usuario = await _usuarioDAO.GetByEmailAsync(email);
 
         if (usuario == null)
         {
-            return (404, "No se encontró una cuenta con ese email.");
+            return new NotFoundObjectResult(new ApiResponse<string>(404, "RequestPasswordResetAsyncUser404"));
         }
 
         if (usuario.email_verified==false)
         {
-            return (400, "El email no ha sido verificado.");
+            return new BadRequestObjectResult(new ApiResponse<string>(400, "RequestPasswordResetAsyncUser400"));
         }
 
         // Generar token seguro para restablecimiento (GUID en Base64 sin caracteres conflictivos)
@@ -333,15 +338,20 @@ public class UsuarioService
 
         try
         {
-            // TODO: Implementar envío de correo
+            if(usuario?.email == null){
+                return new NotFoundObjectResult(new ApiResponse<string>(404, "RequestPasswordResetAsyncUser404"));
+            }
+            
             await _emailService.SendPasswordResetEmail(usuario.email, token);
+
+            return new OkObjectResult(new ApiResponse<string>(200, "RequestPasswordResetAsyncUser200"));
         }
-        catch (Exception)
+        catch (Exception ex)
         {
-            return (500, "Error al enviar el correo de restablecimiento.");
+            Console.WriteLine("Error 500: " + ex.Message);
+            return new ObjectResult(new ApiResponse<string>(500, "RequestPasswordResetAsyncUser500"));
         }
 
-        return (200, "Se ha enviado un correo con el enlace de restablecimiento.");
     }
 
 

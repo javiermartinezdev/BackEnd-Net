@@ -171,27 +171,25 @@ public class usersController : ControllerBase
     [HttpPatch("{id}")]
     public async Task<IActionResult> Patch(Guid id, [FromBody] UsuarioPatchDTO usuarioDTO)
     {
-        if (usuarioDTO == null)
-        {
-            return BadRequest();
+        try{
+            if(id == Guid.Empty)
+            {
+                return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
+            }
+
+            if(usuarioDTO == null)
+            {
+                return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
+            }
+            
+             var existingUser = await _usuarioService.UpdatePartialAsync(id,usuarioDTO);
+             return existingUser;
         }
-
-        var existingUser = await _usuarioDAO.GetByIdAsync(id);
-        if (existingUser == null)
+        catch(Exception ex)
         {
-            return NotFound();
+            Console.WriteLine("Error 500: " + ex);
+            return StatusCode(500, new ApiResponse<string>(500,MessageService.Instance.GetMessage("controllerUser500")));
         }
-
-        var usuarioParcial = new Usuario();
-        if (!string.IsNullOrEmpty(usuarioDTO.first_name))
-            usuarioParcial.first_name = usuarioDTO.first_name;
-        if (!string.IsNullOrEmpty(usuarioDTO.last_name))
-            usuarioParcial.last_name = usuarioDTO.last_name;
-        if (!string.IsNullOrEmpty(usuarioDTO.email))
-            usuarioParcial.email = usuarioDTO.email;
-
-        await _usuarioDAO.UpdatePartialAsync(id, usuarioParcial);
-        return NoContent();
     }
 
     /// <summary>
@@ -229,47 +227,13 @@ public class usersController : ControllerBase
     {
         try
         {
-            var usuarioVerificado = await _usuarioService.VerifyEmailAsync(id); // Verifica el correo electrónico del usuario
-            if (usuarioVerificado == null)
-            {
-                return NotFound(new
-                {
-                    codigo = 404,
-                    mensaje = "Usuario no encontrado.",
-                    resultado = (object?)null
-                });
-            }
-
-            return Ok(new
-            {
-                codigo = 200,
-                mensaje = "Email verificado exitosamente.",
-                resultado = new
-                {
-                    id = usuarioVerificado.id,
-                    email = usuarioVerificado.email,
-                    email_verified = usuarioVerificado.email_verified,
-                    email_verified_at = usuarioVerificado.email_verified_at
-                }
-            });
+            var usuarioVerificado = await _usuarioService.VerifyEmailAsync(id); 
+            return usuarioVerificado;
         }
-        catch (InvalidOperationException)
+        catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                codigo = 400,
-                mensaje = "El email ya estaba verificado.",
-                resultado = (object?)null
-            });
-        }
-        catch (Exception)
-        {
-            return StatusCode(500, new
-            {
-                codigo = 500,
-                mensaje = "Error interno del servidor.",
-                resultado = (object?)null
-            });
+            Console.WriteLine("Error 500: " + ex);
+            return StatusCode(500, new ApiResponse<string>(500, MessageService.Instance.GetMessage("controllerUser500")));
         }
     }
 
@@ -331,65 +295,28 @@ public class usersController : ControllerBase
     [HttpPost("{id}/change-password")]
     public async Task<IActionResult> ChangePassword(Guid id, [FromBody] ChangePasswordDTO model)
     {
-        try
-        {
-            var result = await _usuarioService.ChangePasswordAsync(id, model);
-
-            if (!result)
+        
+        try{
+            
+            if(id == Guid.Empty)
             {
-                return BadRequest(new
-                {
-                    codigo = 400,
-                    mensaje = "La contraseña actual no es correcta.",
-                    resultado = (object?)null
-                });
+                return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
             }
 
-            return Ok(new
+            if(!ModelState.IsValid)
             {
-                codigo = 200,
-                mensaje = "Contraseña cambiada exitosamente.",
-                resultado = (object?)null
-            });
+                return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
+            }
+
+            var result = await _usuarioService.ChangePasswordAsync(id, model);
+            return result;
         }
-        catch (InvalidOperationException ex) when (ex.Message == "La contraseña actual no es correcta.")
+        catch (Exception ex)
         {
-            return BadRequest(new
-            {
-                codigo = 400,
-                mensaje = ex.Message,
-                resultado = (object?)null
-            });
+            Console.WriteLine("Error 500: " + ex);
+            return StatusCode(500, new ApiResponse<string>(500, MessageService.Instance.GetMessage("controllerUser500")));
         }
-        catch (InvalidOperationException ex) when (ex.Message == "La nueva contraseña y la confirmación no coinciden.")
-        {
-            return BadRequest(new
-            {
-                codigo = 400,
-                mensaje = ex.Message,
-                resultado = (object?)null
-            });
-        }
-        catch (KeyNotFoundException)
-        {
-            return NotFound(new
-            {
-                codigo = 404,
-                mensaje = "Usuario no encontrado",
-                resultado = (object?)null
-            });
-        }
-        /*
-        catch (Exception)
-        {
-            return StatusCode(500, new
-            {
-                codigo = 500,
-                mensaje = "Error interno del servidor.",
-                resultado = (object?)null
-            });
-        }
-        */
+        
     }
 
     /// <summary>
@@ -400,52 +327,20 @@ public class usersController : ControllerBase
     [HttpPost("request-password-reset")]
     public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetDTO request)
     {
-        if (request == null || string.IsNullOrEmpty(request.Email))
-        {
-            return BadRequest(new
-            {
-                codigo = 400,
-                mensaje = "El email es obligatorio.",
-                resultado = (object?)null
-            });
-        }
-
         try
         {
-            await _usuarioService.RequestPasswordResetAsync(request.Email);
-            return Ok(new
+            if (request == null || string.IsNullOrEmpty(request.Email))
             {
-                codigo = 200,
-                mensaje = "Se ha enviado un correo con el enlace de restablecimiento.",
-                resultado = (object?)null
-            });
+                return BadRequest(new ApiResponse<string>(400, MessageService.Instance.GetMessage("controller400")));
+            }
+            
+            var respuesta = await _usuarioService.RequestPasswordResetAsync(request.Email);
+            return respuesta;
         }
-        catch (KeyNotFoundException)
+        catch(Exception ex)
         {
-            return NotFound(new
-            {
-                codigo = 404,
-                mensaje = "No se encontró una cuenta con ese email.",
-                resultado = (object?)null
-            });
-        }
-        catch (InvalidOperationException)
-        {
-            return BadRequest(new
-            {
-                codigo = 400,
-                mensaje = "El email no ha sido verificado.",
-                resultado = (object?)null
-            });
-        }
-        catch (Exception)
-        {
-            return StatusCode(500, new
-            {
-                codigo = 500,
-                mensaje = "Error al enviar el correo de restablecimiento.",
-                resultado = (object?)null
-            });
+            Console.WriteLine("Error 500: " + ex);
+            return StatusCode(500, new ApiResponse<string>(500, MessageService.Instance.GetMessage("controllerUser500")));
         }
     }
 
