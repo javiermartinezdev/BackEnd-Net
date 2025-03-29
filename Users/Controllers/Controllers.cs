@@ -14,14 +14,11 @@ public class usersController : ControllerBase
 {
     private readonly UsuarioDAO _usuarioDAO;
     private readonly UsuarioMapper _usuarioMapper;
-    private readonly UsuarioService _usuarioService;
+    private readonly IUsuarioService _usuarioService;
 
     /// <summary>
     /// Inicializa una nueva instancia de la clase <see cref="UsuarioController"/>.
     /// </summary>
-    /// <param name="usuarioDAO">El objeto DAO para acceder a los datos de los usuarios.</param>
-    /// <param name="usuarioMapper">El objeto Mapper para convertir entre entidades y DTOs.</param>
-    /// <param name="usuarioService">El objeto Service para la lógica de negocio de los usuarios.</param>
     public usersController(UsuarioDAO usuarioDAO, UsuarioMapper usuarioMapper, UsuarioService usuarioService)
     {
         _usuarioDAO = usuarioDAO;
@@ -32,7 +29,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Obtiene una lista de todos los usuarios.
     /// </summary>
-    /// <returns>Una lista de objetos <see cref="UsuarioDTO"/>.</returns>
     [HttpGet]
     public async Task<IActionResult> Get()
     {
@@ -51,8 +47,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Obtiene un usuario por su identificador único.
     /// </summary>
-    /// <param name="id">El identificador único del usuario.</param>
-    /// <returns>Un objeto <see cref="UsuarioDTO"/>.</returns>
     [HttpGet("{id}")]
     public async Task<IActionResult> Get(Guid id)
     {
@@ -76,8 +70,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Crea un nuevo usuario.
     /// </summary>
-    /// <param name="usuarioDTO">Los datos del usuario en formato DTO.</param>
-    /// <returns>Un objeto <see cref="UsuarioDTO"/> creado.</returns>
     [HttpPost]
     public async Task<IActionResult> Post([FromBody] UsuarioDTO usuarioDTO)
     {
@@ -107,9 +99,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Actualiza un usuario existente.
     /// </summary>
-    /// <param name="id">El identificador único del usuario.</param>
-    /// <param name="usuarioDTO">Los datos del usuario en formato DTO.</param>
-    /// <returns>Una respuesta de estado HTTP.</returns>
     [HttpPut("{id}")]
     public async Task<IActionResult> Put(Guid id, [FromBody] UsuarioDTO usuarioDTO)
     {
@@ -138,8 +127,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Elimina un usuario por su identificador único.
     /// </summary>
-    /// <param name="id">El identificador único del usuario.</param>
-    /// <returns>Una respuesta de estado HTTP.</returns>
     [HttpDelete("{id}")]
     public async Task<IActionResult> Delete(Guid id)
     {
@@ -165,9 +152,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Actualiza parcialmente un usuario existente.
     /// </summary>
-    /// <param name="id">El identificador único del usuario.</param>
-    /// <param name="usuarioDTO">Los datos parciales del usuario en formato DTO.</param>
-    /// <returns>Una respuesta de estado HTTP.</returns>
     [HttpPatch("{id}")]
     public async Task<IActionResult> Patch(Guid id, [FromBody] UsuarioPatchDTO usuarioDTO)
     {
@@ -195,8 +179,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Restaura un usuario eliminado.
     /// </summary>
-    /// <param name="id">El identificador único del usuario.</param>
-    /// <returns>Una respuesta de estado HTTP.</returns>
     [HttpPatch("{id}/restore")]
     public async Task<IActionResult> RestoreUserAsync(Guid id)
     {
@@ -220,8 +202,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Endpoint HTTP POST para verificar el correo electrónico de un usuario.
     /// </summary>
-    /// <param name="id">El identificador único del usuario.</param>
-    /// <returns>Una acción de resultado que contiene el estado de la solicitud y el usuario verificado.</returns>
     [HttpPost("{id}/verify-email")]
     public async Task<IActionResult> VerifyEmail(Guid id)
     {
@@ -240,9 +220,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Endpoint HTTP PATCH para activar un usuario estableciendo el campo is_active en true.
     /// </summary>
-    /// <param name="id">El identificador único del usuario.</param>
-    /// <returns>Una acción de resultado que devuelve el estado del usuario en activo.</returns>
-    
     [HttpPatch("{id}/activate")]
     public async Task<IActionResult> ActivateUser(Guid id)
     {
@@ -265,8 +242,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Desactiva un usuario estableciendo is_active en false.
     /// </summary>
-    /// <param name="id">El identificador único del usuario.</param>
-    /// <returns>Respuesta HTTP con el estado de la desactivación.</returns>
     [HttpPatch("{id}/deactivate")]
     public async Task<IActionResult> DeactivateUser(Guid id)
     {
@@ -290,8 +265,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Cambia la contraseña de un usuario.
     /// </summary>
-    /// <param name="id">El identificador único del usuario.</param>
-    /// <returns>Respuesta HTTP con el estado del cambio.</returns>
     [HttpPost("{id}/change-password")]
     public async Task<IActionResult> ChangePassword(Guid id, [FromBody] ChangePasswordDTO model)
     {
@@ -322,8 +295,6 @@ public class usersController : ControllerBase
     /// <summary>
     /// Solicita el restablecimiento de contraseña enviando un enlace al correo del usuario.
     /// </summary>
-    /// <param name="request">Objeto con el email del usuario.</param>
-    /// <returns>Respuesta HTTP con el estado de la solicitud.</returns>
     [HttpPost("request-password-reset")]
     public async Task<IActionResult> RequestPasswordReset([FromBody] RequestPasswordResetDTO request)
     {

@@ -1,10 +1,10 @@
 using Microsoft.AspNetCore.Mvc;
 
-public class UsuarioService
+public class UsuarioService : IUsuarioService
 {
     private readonly UsuarioDAO _usuarioDAO; 
     private readonly UsuarioMapper _usuarioMapper; 
-    private readonly EmailService _emailService; // Inyectar EmailService
+    private readonly PasswordResetEmail _emailService; // Inyectar EmailService
 
 
     /// <summary>
@@ -12,7 +12,7 @@ public class UsuarioService
     /// </summary>
     /// <param name="usuarioDAO">El DAO para la interacción con la base de datos.</param>
     /// <param name="usuarioMapper">El mapper para convertir entre entidades y DTOs.</param>
-    public UsuarioService(UsuarioDAO usuarioDAO, UsuarioMapper usuarioMapper, EmailService emailService)
+    public UsuarioService(UsuarioDAO usuarioDAO, UsuarioMapper usuarioMapper, PasswordResetEmail emailService)
     {
         _usuarioDAO = usuarioDAO;
         _usuarioMapper = usuarioMapper;
@@ -48,7 +48,7 @@ public class UsuarioService
         }
 
         if(usuario.is_active){
-            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("ActivateUserUser404")));
+            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("ActivateUserUser400")));
         }
     
         usuario.is_active = true;
@@ -76,7 +76,7 @@ public class UsuarioService
         }
         
         var resultado = _usuarioMapper.ToDTO(usuario);
-        return new OkObjectResult(new ApiResponse<UsuarioDTO>(200,MessageService.Instance.GetMessage("GetByIdAsyncUser200")));
+        return new OkObjectResult(new ApiResponse<UsuarioDTO>(200,MessageService.Instance.GetMessage("GetByIdAsyncUser200"),resultado));
     }
 
     /// <summary>
@@ -197,8 +197,8 @@ public class UsuarioService
             return new NotFoundObjectResult(new ApiResponse<string>(404, MessageService.Instance.GetMessage("RestoreUserAsyncUser404")));
         }
 
-        var result = _usuarioMapper.ToDTO(usuario);
-        return new OkObjectResult(new ApiResponse<UsuarioDTO>(200,MessageService.Instance.GetMessage("RestoreUserAsyncUser200"),result));
+        var resultado = _usuarioMapper.ToDTO(usuario);
+        return new OkObjectResult(new ApiResponse<UsuarioDTO>(200,MessageService.Instance.GetMessage("RestoreUserAsyncUser200"),resultado));
     }
 
     /// <summary>
@@ -353,6 +353,4 @@ public class UsuarioService
         }
 
     }
-
-
 }

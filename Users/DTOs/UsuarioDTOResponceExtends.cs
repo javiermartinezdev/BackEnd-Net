@@ -1,3 +1,7 @@
+/// <summary>
+/// Representa los datos del usuario transferidos entre capas de la aplicación.
+/// Se utiliza para mandar respuesta larga heredando de la UsuarioDTOResponce
+/// </summary>
 
 public class UsuarioDTOResponceExtends : UsuarioDTOResponce
 {   

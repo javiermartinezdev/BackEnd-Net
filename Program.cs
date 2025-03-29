@@ -38,7 +38,7 @@ builder.Services.AddDbContext<DataContextProduct>(
 builder.Services.AddScoped<UsuarioDAO>();
 builder.Services.AddSingleton<UsuarioMapper>();
 builder.Services.AddScoped<UsuarioService>(); // Aquí agregamos UsuarioService
-builder.Services.AddScoped<EmailService>();
+builder.Services.AddScoped<PasswordResetEmail>();
 
 builder.Services.AddScoped<IProductDAO, ProductDAO>(); 
 builder.Services.AddScoped<IProductService, ProductService>();

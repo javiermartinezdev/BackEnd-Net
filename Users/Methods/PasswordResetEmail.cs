@@ -7,7 +7,7 @@ using System.Net.Mail;
 using System.Threading.Tasks;
 
 
-public class EmailService
+public class PasswordResetEmail
     {
         private readonly string _smtpServer = "smtp.gmail.com"; // O el servidor de tu elección
         private readonly int _smtpPort = 587; // Puerto SMTP
