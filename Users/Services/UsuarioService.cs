@@ -2,7 +2,7 @@ using Microsoft.AspNetCore.Mvc;
 
 public class UsuarioService : IUsuarioService
 {
-    private readonly UsuarioDAO _usuarioDAO; 
+    private readonly IUsuarioDAO _iUsuarioDAO; 
     private readonly UsuarioMapper _usuarioMapper; 
     private readonly PasswordResetEmail _emailService; // Inyectar EmailService
 
@@ -14,24 +14,32 @@ public class UsuarioService : IUsuarioService
     /// <param name="usuarioMapper">El mapper para convertir entre entidades y DTOs.</param>
     public UsuarioService(UsuarioDAO usuarioDAO, UsuarioMapper usuarioMapper, PasswordResetEmail emailService)
     {
-        _usuarioDAO = usuarioDAO;
+        _iUsuarioDAO = usuarioDAO;
         _usuarioMapper = usuarioMapper;
         _emailService = emailService; // Asignar en el constructor
     }
 
     /// <summary>
     /// Obtiene todos los usuarios de manera asíncrona.
+    /// Obtiene una lista de usarios donde tengamos que pasarle parametros 
     /// </summary>
     /// <returns>Una lista de objetos <see cref="UsuarioDTO"/>.</returns>
-    public async Task<IActionResult> GetAllAsync()
+    public async  Task<IActionResult> GetAllAsync2(int safePage, int safeLimit, string? sort, string safeOrder, bool safeActive, bool safeisDeleted, bool safeIsSuperuser, bool safeEmailVerified)
     {
-        var usuarios = await _usuarioDAO.GetAllAsync(); 
+        SentenciaUsuarios Crearsentencia = new SentenciaUsuarios(safePage, safeLimit, sort, safeOrder, safeActive, safeisDeleted, safeIsSuperuser, safeEmailVerified);
+        
+        var sentencia = Crearsentencia.CrearSenentiaSQLUser();
+        var usuarios = await _iUsuarioDAO.GetUserAsync(sentencia.Sentencia, sentencia.Parametros);
+        
         if(usuarios.Any() || usuarios == null)
         {
             return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("getAllUser404")));
-        } 
-        var resultado = usuarios.Select(u => _usuarioMapper.ToDTO(u)).ToList();  
-        return new OkObjectResult(new ApiResponse<List<UsuarioDTO>>(200,MessageService.Instance.GetMessage("getAlluser200"),resultado));
+        }
+        
+        var resultado = usuarios.Select(u => _usuarioMapper.ToDTO(u)).ToList();
+        
+        return new OkObjectResult(new ApiResponse<ResponseGetUsers<List<UsuarioDTO>>>(200,MessageService.Instance.GetMessage("getAlluser200"),new ResponseGetUsers<List<UsuarioDTO>>(safePage, safeLimit, sort, safeOrder, safeActive, safeisDeleted, safeIsSuperuser, safeEmailVerified, resultado)));
+    
     }
 
     /// <summary>
@@ -40,8 +48,11 @@ public class UsuarioService : IUsuarioService
     /// <param name="id">El identificador único del usuario.</param>
     /// <returns>Un objeto <see cref="UsuarioDTO"/> o <c>null</c> si no se encuentra.</returns>
     
-    public async Task<IActionResult> ActiveteUserAsync(Guid id){
-        var usuario = await _usuarioDAO.GetByIdAsync(id);
+    public async Task<IActionResult> ActiveteUserAsync(Guid id)
+    {
+        
+        var usuario = await _iUsuarioDAO.GetByIdAsync(id);
+        
         if(usuario == null)
         {
             return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("ActivateUserUser400")));
@@ -55,7 +66,7 @@ public class UsuarioService : IUsuarioService
         
         var usuarioActivado = _usuarioMapper.ToDTO(usuario);
         
-        await _usuarioDAO.UpdateAsync(usuario);
+        await _iUsuarioDAO.UpdateAsync(usuario);
         
         var resultado = new UsuarioDTOResponce(id,usuarioActivado);
 
@@ -69,7 +80,7 @@ public class UsuarioService : IUsuarioService
     /// <returns>Un objeto <see cref="UsuarioDTO"/> o <c>null</c> si no se encuentra.</returns>
     public async Task<IActionResult> GetByIdAsync(Guid id)
     {
-        var usuario = await _usuarioDAO.GetByIdAsync(id); 
+        var usuario = await _iUsuarioDAO.GetByIdAsync(id); 
         
         if(usuario == null){
             return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("GetByIdAsyncUser404")));
@@ -88,7 +99,7 @@ public class UsuarioService : IUsuarioService
     {
 
         var usuario = _usuarioMapper.ToEntity(usuarioDTO); 
-        await _usuarioDAO.AddAsync(usuario); 
+        await _iUsuarioDAO.AddAsync(usuario); 
 
         var resultado = new UsuarioDTOResponceExtends(usuario.id,usuarioDTO);
         
@@ -105,15 +116,15 @@ public class UsuarioService : IUsuarioService
         var usuario = _usuarioMapper.ToEntity(usuarioDTO); // Convierte el DTO en una entidad.
 
         // Asegúrate de que no se rastree una instancia duplicada de la entidad
-        var usuarioExistente = await _usuarioDAO.GetByIdAsync(usuario.id);
+        var usuarioExistente = await _iUsuarioDAO.GetByIdAsync(usuario.id);
 
         if(usuarioExistente == null)
         {
             return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("controllerUser404")));
         }
 
-        _usuarioDAO.Detach(usuarioExistente);
-        await _usuarioDAO.UpdateAsync(usuario);
+        _iUsuarioDAO.Detach(usuarioExistente);
+        await _iUsuarioDAO.UpdateAsync(usuario);
 
         var resultado = new UsuarioDTOResponceExtends(usuario.id,usuarioDTO);
 
@@ -127,7 +138,7 @@ public class UsuarioService : IUsuarioService
     /// <returns>Una tarea que representa la operación de eliminación.</returns>
     public async Task<IActionResult> DeleteAsync(Guid id)
     {
-        var existeusuario = await _usuarioDAO.GetByIdAsync(id);
+        var existeusuario = await _iUsuarioDAO.GetByIdAsync(id);
         if(existeusuario == null)
         {
            return new NotFoundObjectResult(new ApiResponse<string>(404, MessageService.Instance.GetMessage("controllerUser404")));     
@@ -136,7 +147,7 @@ public class UsuarioService : IUsuarioService
         {
             return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("DeleteAsyncUser400")));
         }
-        await _usuarioDAO.DeleteAsync(id); 
+        await _iUsuarioDAO.DeleteAsync(id); 
         return new OkObjectResult(new ApiResponse<string>(200,MessageService.Instance.GetMessage("DeleteAsyncUser200")));
     }
 
@@ -150,7 +161,7 @@ public class UsuarioService : IUsuarioService
     {
         
 
-        var existingUser = await _usuarioDAO.GetByIdAsync(id);
+        var existingUser = await _iUsuarioDAO.GetByIdAsync(id);
         if (existingUser == null)
         {
             return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("UpdatePartialAsyncUser404")));
@@ -167,7 +178,7 @@ public class UsuarioService : IUsuarioService
         existingUser.email = usuarioDTO.email ?? existingUser.email;
 
         existingUser.modified_at = DateTimeOffset.UtcNow;
-        await _usuarioDAO.UpdateAsync(existingUser); // Guarda los cambios en la base de datos
+        await _iUsuarioDAO.UpdateAsync(existingUser); // Guarda los cambios en la base de datos
         
         var resultado = _usuarioMapper.ToDTO(existingUser); // Convierte la entidad actualizada a DTO
         var resultadoDTO = new UsuarioDTOResponceExtends(id, resultado); // Crea un nuevo DTO de respuesta
@@ -184,13 +195,13 @@ public class UsuarioService : IUsuarioService
     public async Task<IActionResult> RestoreUserAsync(Guid id)
     {
         
-        var restaurado = await _usuarioDAO.RestoreAsync(id); 
+        var restaurado = await _iUsuarioDAO.RestoreAsync(id); 
         if (!restaurado)
         {
             return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("RestoreUserAsyncUser404"))); // Usuario no encontrado (404)
         }
 
-        var usuario = await _usuarioDAO.GetByIdAsync(id, true); 
+        var usuario = await _iUsuarioDAO.GetByIdAsync(id, true); 
         
         if (usuario == null) 
         {
@@ -209,7 +220,7 @@ public class UsuarioService : IUsuarioService
     /// <exception cref="InvalidOperationException">Se lanza si el correo ya estaba verificado.</exception>
     public async Task<IActionResult> VerifyEmailAsync(Guid id)
     {
-        var usuario = await _usuarioDAO.GetByIdAsync(id); // Busca el usuario en la base de datos
+        var usuario = await _iUsuarioDAO.GetByIdAsync(id); // Busca el usuario en la base de datos
 
         if (usuario == null)
         {
@@ -224,7 +235,7 @@ public class UsuarioService : IUsuarioService
         usuario.email_verified = true;
         usuario.email_verified_at = DateTime.UtcNow; 
 
-        await _usuarioDAO.UpdateAsync(usuario); 
+        await _iUsuarioDAO.UpdateAsync(usuario); 
         
         var resultado = new UsuarioDTOVerifiedEmail(id,usuario);
 
@@ -238,7 +249,7 @@ public class UsuarioService : IUsuarioService
     /// <exception cref="InvalidOperationException">Si el usuario ya está desactivado.</exception>
     public async Task<IActionResult> DeactivateUserAsync(Guid id)
     {
-        var usuario = await _usuarioDAO.GetByIdAsync(id);
+        var usuario = await _iUsuarioDAO.GetByIdAsync(id);
 
         if (usuario == null)
         {
@@ -251,7 +262,7 @@ public class UsuarioService : IUsuarioService
         }
 
         usuario.is_active = false;
-        await _usuarioDAO.UpdateAsync(usuario);
+        await _iUsuarioDAO.UpdateAsync(usuario);
 
         var usuarioActivado = _usuarioMapper.ToDTO(usuario); 
 
@@ -271,7 +282,7 @@ public class UsuarioService : IUsuarioService
     /// la nueva contraseña no cumple los requisitos o las contraseñas no coinciden.</exception>
     public async Task<IActionResult> ChangePasswordAsync(Guid id, ChangePasswordDTO model)
     {
-        var usuario = await _usuarioDAO.GetByIdAsync(id);
+        var usuario = await _iUsuarioDAO.GetByIdAsync(id);
         
         if (usuario == null)
         {
@@ -282,7 +293,7 @@ public class UsuarioService : IUsuarioService
         if (!usuario.password.StartsWith("$2a$") && !usuario.password.StartsWith("$2b$") && !usuario.password.StartsWith("$2y$"))
         {
             usuario.password = BCrypt.Net.BCrypt.HashPassword(usuario.password, 12);
-            await _usuarioDAO.UpdateAsync(usuario);
+            await _iUsuarioDAO.UpdateAsync(usuario);
         }
 
         // Verificar que la contraseña actual sea correcta
@@ -305,14 +316,14 @@ public class UsuarioService : IUsuarioService
 
         // Hashear la nueva contraseña antes de guardarla
         usuario.password = BCrypt.Net.BCrypt.HashPassword(model.NewPassword, 12);
-        await _usuarioDAO.UpdateAsync(usuario);
+        await _iUsuarioDAO.UpdateAsync(usuario);
 
         return new OkObjectResult(new ApiResponse<string>(200,MessageService.Instance.GetMessage("ChangePasswordAsyncUser200")));  
     }
 
     public async Task<IActionResult> RequestPasswordResetAsync(string email)
     {
-        var usuario = await _usuarioDAO.GetByEmailAsync(email);
+        var usuario = await _iUsuarioDAO.GetByEmailAsync(email);
 
         if (usuario == null)
         {
@@ -334,7 +345,7 @@ public class UsuarioService : IUsuarioService
         usuario.password_reset_token = token;
         usuario.password_reset_token_expiration = DateTime.UtcNow.AddHours(1); // Expira en 1 hora
 
-        await _usuarioDAO.UpdateAsync(usuario);
+        await _iUsuarioDAO.UpdateAsync(usuario);
 
         try
         {

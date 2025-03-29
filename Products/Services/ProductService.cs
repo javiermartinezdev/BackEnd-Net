@@ -26,8 +26,8 @@ public class ProductService : IProductService
     public async Task<IActionResult> GetAllProductsAsync(int safePage,int safeLimit,string? sort,string? safeOrder,bool safeStatus,bool safeIsdelete,string? type)
     {
     
-        Sentencias crearSentencia = new Sentencias(safePage,safeLimit,sort,safeOrder,safeStatus,safeIsdelete,type);
-        var sentencia = crearSentencia.CrearSenentiaSQL();
+        SentenciaProductos crearSentencia = new SentenciaProductos(safePage,safeLimit,sort,safeOrder,safeStatus,safeIsdelete,type);
+        var sentencia = crearSentencia.CrearSenentiaSQLProduct();
 
         var products = await _iProductDAO.GetProducts(sentencia.Sentencia,sentencia.Parametros);  
         

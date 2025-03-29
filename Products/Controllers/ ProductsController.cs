@@ -48,7 +48,10 @@ public class ProductController : ControllerBase
                     return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
                 }
             }
-
+            
+            /// <summary>
+            /// Se determina su el valor es null y si no lo es se le asigna el valor despues de '??' a las variables.
+            /// </summary>
             int safePage = page ?? 1;
             int safeLimit = limit ?? 10;
             bool safeStatus = status ?? true;

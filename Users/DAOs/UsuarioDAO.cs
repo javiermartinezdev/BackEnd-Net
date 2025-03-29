@@ -5,12 +5,13 @@ using System.Threading.Tasks;
 using apitienda.Models;
 using apitienda.Data;
 using Microsoft.EntityFrameworkCore;
+using Dapper;
 
 /// <summary>
 /// Clase de acceso a datos (DAO) para la entidad <see cref="Usuario"/>.
 /// Proporciona métodos para realizar operaciones CRUD en la base de datos.
 /// </summary>
-public class UsuarioDAO
+public class UsuarioDAO : IUsuarioDAO
 {
     private readonly DataContext _context;
 
@@ -24,13 +25,15 @@ public class UsuarioDAO
     }
 
     /// <summary>
-    /// Obtiene una lista de todos los usuarios de manera asíncrona.
+    /// Obtiene todos los productos con sentencia personalizada del cliente (Query).
     /// </summary>
-    /// <returns>Una lista de objetos <see cref="Usuario"/>.</returns>
-    public async Task<List<Usuario>> GetAllAsync()
+    public async Task<List<Usuario>> GetUserAsync(string sentencia, DynamicParameters parametros)
     {
-        return await _context.Users.Where(u => !u.is_deleted).ToListAsync();
-    }
+        using var connection = _context.Database.GetDbConnection();
+        await connection.OpenAsync(); // Asegurar que la conexión se abre antes de usarla
+        return (await connection.QueryAsync<Usuario>(sentencia, parametros)).ToList();
+    } 
+
 
     /// <summary>
     /// Obtiene un usuario por su identificador único de manera asíncrona.
@@ -156,9 +159,15 @@ public class UsuarioDAO
         }
     }
 
+    /// <summary>
+    /// Busca un usuario por su email en la base de datos y devuelve el primer 
+    // resultado encontrado o null si no existe.
+    /// </summary>
+    /// <param email="email@usuario">La entidad email entra como condicion.</param>
+
     public async Task<Usuario?> GetByEmailAsync(string email)
     {
-    return await _context.Users.FirstOrDefaultAsync(u => u.email == email);
+        return await _context.Users.FirstOrDefaultAsync(u => u.email == email);
     }
 
 

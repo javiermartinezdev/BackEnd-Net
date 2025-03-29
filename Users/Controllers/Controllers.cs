@@ -3,7 +3,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using apitienda.Models;
-using Microsoft.EntityFrameworkCore.Metadata.Internal; // Asegúrate de incluir esta directiva
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using System.Net.Sockets; // Asegúrate de incluir esta directiva
 
 /// <summary>
 /// Controlador para gestionar las operaciones relacionadas con los usuarios.
@@ -25,22 +26,64 @@ public class usersController : ControllerBase
         _usuarioMapper = usuarioMapper;
         _usuarioService = usuarioService;
     }
-
-    /// <summary>
-    /// Obtiene una lista de todos los usuarios.
-    /// </summary>
-    [HttpGet]
-    public async Task<IActionResult> Get()
+    
+    [HttpGet("users")]
+    public async Task<IActionResult> GetAllUsersAsync(int? page,int? limit,string? sort,string? order,bool? is_active,bool? is_deleted,bool? is_superuser, bool? email_veridied)
     {
         try
         {
-            var usuarios = await _usuarioService.GetAllAsync();
+            if(!(page==null))
+            {
+                if(page < 1)
+                {
+                    return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
+                }
+            }
+            
+            if(!(limit==null))
+            {
+                if(limit < 1)
+                {
+                    return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
+                }
+            }
+            
+            if(!(order == null))
+            {
+                if(!(order == "asc" || order == "desc"))
+                {
+                    return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
+                }
+            }
+
+            if(!(sort == null))
+            {
+                if(!(sort == "username" || sort == "email" || sort == "date_joined" || sort == "first_name" || sort == "last_name"
+                  || sort == "is_active" || sort == "is_deleted" || sort == "is_superuser" || sort == "email_verified" || sort == "date_of_birth"
+                  || sort == "nationality" || sort == "occupation" || sort == "gender" || sort == "role"))
+                {
+                    return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
+                }
+            }
+
+            /// <summary>
+            /// Se determina su el valor es null y si no lo es se le asigna el valor despues de '??' a las variables.
+            /// </summary>
+            int safePage = page ?? 1;
+            int safeLimit = limit ?? 10;
+            string safeOrder = order ?? "asc";
+            bool safeIsdeleted = is_deleted ?? false;
+            bool safeIsActive = is_active ?? true;
+            bool safeEmailVeridied = email_veridied ?? true;
+            bool safeIsSuperuser = is_superuser ?? false;
+
+            var usuarios = await _usuarioService.GetAllAsync2( safePage,safeLimit, sort,safeOrder,safeIsActive,safeIsdeleted, safeIsSuperuser,safeEmailVeridied);    
             return usuarios;
-        }   
-        catch(Exception ex)
+        }
+        catch (Exception ex)
         {
             Console.WriteLine("Error 500: " + ex);
-            return StatusCode(500, new ApiResponse<string>(500,MessageService.Instance.GetMessage("controllerUser500")));
+            return StatusCode(500, new ApiResponse<string>(500, MessageService.Instance.GetMessage("controllerUser500")));
         }
     }
 
@@ -314,6 +357,4 @@ public class usersController : ControllerBase
             return StatusCode(500, new ApiResponse<string>(500, MessageService.Instance.GetMessage("controllerUser500")));
         }
     }
-
-
 }

@@ -34,3 +34,9 @@ Si estás interesado en cómo se realizó este proyecto paso a paso por favor co
 - **Número de cubículo**: T-169
 - **Ubicación**: Edificio T de CBI, Universidad Autónoma Metropolitana Unidad Iztapalapa
 - **Telefono**: 58 04 46 00 ext. 1169
+
+
+Realizado por:
+José Luis Quiroz Fabian. 
+Javier Clara Martinez.
+Fernando Octavio Arroyo Velasco.

@@ -1,7 +1,7 @@
 using Dapper;
 
 namespace productos.Methods{
-    public class Sentencias{
+    public class SentenciaProductos{
         int safePage;
         int safeLimit;
         string? sort;
@@ -13,7 +13,7 @@ namespace productos.Methods{
         string sentencia = "SELECT * FROM \"Products\" WHERE 1=1 ";
 
         // Primary Constructor
-        public Sentencias(int safePage, int safeLimit, string? sort, string? safeOrder, bool safeStatus, bool safeIsdelete, string? type)
+        public SentenciaProductos(int safePage, int safeLimit, string? sort, string? safeOrder, bool safeStatus, bool safeIsdelete, string? type)
         {
             this.safePage = safePage;
             this.safeLimit = safeLimit;
@@ -24,7 +24,7 @@ namespace productos.Methods{
             this.type = type;
         }
 
-        public (string Sentencia, DynamicParameters Parametros) CrearSenentiaSQL()
+        public (string Sentencia, DynamicParameters Parametros) CrearSenentiaSQLProduct()
         {
             var parametros = new DynamicParameters();
             sentencia += " AND status = @status ";
