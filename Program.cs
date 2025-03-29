@@ -59,6 +59,7 @@ builder.Services.AddSwaggerGen(); // Agrega el servicio de Swagger para generar 
 builder.Services.AddAuthorization();
 builder.Services.AddAuthentication("Bearer").AddJwtBearer();
 
+
 var app = builder.Build();
 
 /// <summary>
@@ -69,6 +70,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwagger(); // Habilita Swagger en el entorno de desarrollo para generar la documentación interactiva
     app.UseSwaggerUI(); // Habilita la interfaz de usuario de Swagger para explorar la API
 }
+
+app.UseHttpsRedirection();//Habilita la redirección HTTPS (la forza).
 
 /// <summary>
 /// Habilita la redirección HTTPS.
