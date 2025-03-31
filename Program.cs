@@ -15,20 +15,22 @@ Env.Load();
 /// Obtiene la cadena de conexión a la base de datos desde las variables de entorno o configuración.
 /// </summary>
 //var connectionString = builder.Configuration.GetConnectionString("DefaultConnection"); este es la linea original si sale mal la consulta poner esta y quitar la siguiente linea que lee el archivo .env
-var connectionString = builder.Configuration.GetConnectionString("CONNECTIONSTRINGS__DEFAULTCONNECTION");
+var connectionStringProducts = builder.Configuration.GetConnectionString("CONNECTIONSTRINGS__DEFAULTCONNECTIONPRODUCTS");
+
+var connectionStringUser = builder.Configuration.GetConnectionString("CONNECTIONSTRINGS__DEFAULTCONNECTIONUSERS");
 
 /// <summary>
 /// Configura el contexto de datos con la base de datos PostgreSQL.
 /// </summary>
 builder.Services.AddDbContext<DataContext>(
-    options => options.UseNpgsql(connectionString)
+    options => options.UseNpgsql(connectionStringUser)
 );
 
 /// <summary>
 /// Configura el contexto de datos con la base de datos PostgreSQL.
 /// </summary>
 builder.Services.AddDbContext<DataContextProduct>(
-    options => options.UseNpgsql(connectionString)
+    options => options.UseNpgsql(connectionStringProducts)
 );
 
 
@@ -71,7 +73,6 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI(); // Habilita la interfaz de usuario de Swagger para explorar la API
 }
 
-app.UseHttpsRedirection();//Habilita la redirección HTTPS (la forza).
 
 /// <summary>
 /// Habilita la redirección HTTPS.

@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using apitienda.Models;
+using DotNetEnv;
 
 namespace apitienda.Data
 {
@@ -25,7 +26,6 @@ namespace apitienda.Data
         /// Define una propiedad DbSet para acceder a la tabla de usuarios en la base de datos.
         /// </summary>
         public DbSet<Usuario> Users { get; set; }
-        
 
         /// <summary>
         /// Configura la cadena de conexión para la base de datos PostgreSQL.
@@ -33,7 +33,12 @@ namespace apitienda.Data
         /// <param name="optionsBuilder">El constructor de opciones para configurar el contexto de la base de datos.</param>
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
-            optionsBuilder.UseNpgsql("Host=127.0.0.1;Database=Tienda;Username=postgres;Password=pass");
+            //Leemos nuestro archivo .env
+            Env.Load();
+             //obtenemos la cadena de coneccion
+            string connectionString = Env.GetString("CONNECTIONSTRINGS__DEFAULTCONNECTIONUSERS");
+            optionsBuilder.UseNpgsql(connectionString);
+            //optionsBuilder.UseNpgsql("Host=127.0.0.1;Database=Tienda;Username=postgres;Password=pass");
         }
     }
 }

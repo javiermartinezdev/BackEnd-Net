@@ -13,7 +13,7 @@ namespace productos.Data
             //leemos nuestro archivo .env
             Env.Load();
             //obtenemos la cadena de coneccion
-            string connectionString = Env.GetString("CONNECTIONSTRINGS__DEFAULTCONNECTION");
+            string connectionString = Env.GetString("CONNECTIONSTRINGS__DEFAULTCONNECTIONPRODUCTS");
             optionsBuilder.UseNpgsql(connectionString);
         }
 

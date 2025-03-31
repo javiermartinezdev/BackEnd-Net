@@ -28,7 +28,7 @@ public class SentenciaUsuarios
     public (string Sentencia, DynamicParameters Parametros) CrearSenentiaSQLUser()
     {
         var parametros = new DynamicParameters();
-        sentencia += " AND active = @active ";
+        sentencia += " AND is_active = @active ";
         parametros.Add("@active", safeActive);
 
         sentencia += " AND is_deleted = @is_deleted ";
