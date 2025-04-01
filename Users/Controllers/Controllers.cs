@@ -13,18 +13,14 @@ using System.Net.Sockets; // Asegúrate de incluir esta directiva
 [ApiController]
 public class usersController : ControllerBase
 {
-    private readonly UsuarioDAO _usuarioDAO;
-    private readonly UsuarioMapper _usuarioMapper;
-    private readonly IUsuarioService _usuarioService;
+    private readonly IUsuarioService _iUsuarioService;
 
     /// <summary>
     /// Inicializa una nueva instancia de la clase <see cref="UsuarioController"/>.
     /// </summary>
-    public usersController(UsuarioDAO usuarioDAO, UsuarioMapper usuarioMapper, UsuarioService usuarioService)
+    public usersController(IUsuarioService iUsuarioService)
     {
-        _usuarioDAO = usuarioDAO;
-        _usuarioMapper = usuarioMapper;
-        _usuarioService = usuarioService;
+        _iUsuarioService = iUsuarioService;
     }
     
     [HttpGet("users")]
@@ -66,18 +62,7 @@ public class usersController : ControllerBase
                 }
             }
 
-            /// <summary>
-            /// Se determina su el valor es null y si no lo es se le asigna el valor despues de '??' a las variables.
-            /// </summary>
-            int safePage = page ?? 1;
-            int safeLimit = limit ?? 10;
-            string safeOrder = order ?? "asc";
-            bool safeIsdeleted = is_deleted ?? false;
-            bool safeIsActive = is_active ?? true;
-            bool safeEmailVeridied = email_veridied ?? true;
-            bool safeIsSuperuser = is_superuser ?? false;
-
-            var usuarios = await _usuarioService.GetAllAsync2( safePage,safeLimit, sort,safeOrder,safeIsActive,safeIsdeleted, safeIsSuperuser,safeEmailVeridied);    
+            var usuarios = await _iUsuarioService.GetAllAsync2( page,limit, sort,order,is_active,is_deleted, is_superuser,email_veridied);    
             return usuarios;
         }
         catch (Exception ex)
@@ -100,7 +85,7 @@ public class usersController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
             }
 
-            var usuario = await _usuarioService.GetByIdAsync(id);
+            var usuario = await _iUsuarioService.GetByIdAsync(id);
             return usuario;    
         }
         catch(Exception ex){
@@ -114,11 +99,11 @@ public class usersController : ControllerBase
     /// Crea un nuevo usuario.
     /// </summary>
     [HttpPost]
-    public async Task<IActionResult> Post([FromBody] UsuarioDTO usuarioDTO)
+    public async Task<IActionResult> Post([FromBody] UsuarioCreateDTO usuarioCreateDTO)
     {
         try
         {
-            if (usuarioDTO == null)
+            if (usuarioCreateDTO == null)
             {
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerPostUser")));
             }
@@ -128,7 +113,7 @@ public class usersController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerPostUser")));
             }
 
-            var usuario = await _usuarioService.AddAsync(usuarioDTO);
+            var usuario = await _iUsuarioService.AddAsync(usuarioCreateDTO);
             return usuario;
         }
         catch(Exception ex)
@@ -157,7 +142,7 @@ public class usersController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
             }
 
-            var updatedUser = await _usuarioService.UpdateAsync(usuarioDTO);
+            var updatedUser = await _iUsuarioService.UpdateAsync(usuarioDTO);
             return updatedUser;
         }
         catch(Exception ex)
@@ -180,7 +165,7 @@ public class usersController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
             }
 
-            var existingUser = await _usuarioService.GetByIdAsync(id);
+            var existingUser = await _iUsuarioService.DeleteAsync(id);
             return existingUser;
         
         }
@@ -209,7 +194,7 @@ public class usersController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
             }
             
-             var existingUser = await _usuarioService.UpdatePartialAsync(id,usuarioDTO);
+             var existingUser = await _iUsuarioService.UpdatePartialAsync(id,usuarioDTO);
              return existingUser;
         }
         catch(Exception ex)
@@ -232,7 +217,7 @@ public class usersController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
             }
 
-            var usuarioRestaurado = await _usuarioService.RestoreUserAsync(id);
+            var usuarioRestaurado = await _iUsuarioService.RestoreUserAsync(id);
             return usuarioRestaurado;
 
         }catch (Exception ex)
@@ -250,7 +235,7 @@ public class usersController : ControllerBase
     {
         try
         {
-            var usuarioVerificado = await _usuarioService.VerifyEmailAsync(id); 
+            var usuarioVerificado = await _iUsuarioService.VerifyEmailAsync(id); 
             return usuarioVerificado;
         }
         catch (Exception ex)
@@ -273,7 +258,7 @@ public class usersController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
             }
 
-            var activarUsuario = await _usuarioService.ActiveteUserAsync(id);
+            var activarUsuario = await _iUsuarioService.ActiveteUserAsync(id);
             return activarUsuario;
         
         }catch(Exception ex){
@@ -295,7 +280,7 @@ public class usersController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
             }
 
-            var usuario = await _usuarioService.DeactivateUserAsync(id);
+            var usuario = await _iUsuarioService.DeactivateUserAsync(id);
             return usuario;
         }
         catch(Exception ex)
@@ -324,7 +309,7 @@ public class usersController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
             }
 
-            var result = await _usuarioService.ChangePasswordAsync(id, model);
+            var result = await _iUsuarioService.ChangePasswordAsync(id, model);
             return result;
         }
         catch (Exception ex)
@@ -348,7 +333,7 @@ public class usersController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400, MessageService.Instance.GetMessage("controller400")));
             }
             
-            var respuesta = await _usuarioService.RequestPasswordResetAsync(request.Email);
+            var respuesta = await _iUsuarioService.RequestPasswordResetAsync(request.Email);
             return respuesta;
         }
         catch(Exception ex)

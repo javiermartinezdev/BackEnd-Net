@@ -18,14 +18,23 @@ Antes de ejecutar el proyecto, es necesario instalar **.NET**. Puedes descargarl
      ```bash
      cd Desktop/BackEnd-Net
      ```
-3. **Ejecutar Proyecto**:
+3. **Ejecutar la migracion de BD**:
+    - Utiliza el comando `dotnet ef migrations add PrimeraMigracionUsuarios --context DataContex` para preparar la primera migracion. 
+
+    - Utiliza el comando `dotnet ef migrations add PrimeraMigracionProductos --context DataContextProduct` para preparar la segunda migracion. 
+    
+    - Despues ejecuta las migraciones con los comandos
+      `dotnet ef database update --context DataContext` para crear la tabla Users.
+      `dotnet ef database update --context DataContextProduct` para crear la tabla. Products.
+
+4. **Ejecutar Proyecto**:
     - Finalmente ejecuta el programa `Program.cs` `con el siguiente comando:
         ```bash
         dotnet run
         ```
     - Este comando iniciará el proyecto
   
-4. **Disfruta**.
+5. **Disfruta**.
 
 ## Contacto para el proyecto
 Si estás interesado en cómo se realizó este proyecto paso a paso por favor contacta a:

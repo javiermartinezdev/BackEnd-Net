@@ -6,8 +6,7 @@ public interface IUsuarioService
     /// Obtiene todos los usuarios.
     /// </summary>
     /// <returns>Una acción que devuelve una lista de todos los usuarios.</returns>
-    Task<IActionResult> GetAllAsync2(int safePage, int safeLimit, string? sort, string safeOrder, bool safeActive, bool safeisDeleted, bool safeIsSuperuser, bool safeEmailVerified);
-
+    Task<IActionResult> GetAllAsync2(int? safePage, int? safeLimit, string? sort, string? safeOrder, bool? safeActive, bool? safeisDeleted, bool? safeIsSuperuser, bool? safeEmailVerified);
     /// <summary>
     /// Activa un usuario según el ID proporcionado.
     /// </summary>
@@ -27,7 +26,7 @@ public interface IUsuarioService
     /// </summary>
     /// <param name="usuarioDTO">El DTO que contiene los datos del usuario a agregar.</param>
     /// <returns>Una acción que indica el resultado de la operación.</returns>
-    Task<IActionResult> AddAsync(UsuarioDTO usuarioDTO);
+    Task<IActionResult> AddAsync(UsuarioCreateDTO usuarioCreateDTO);
 
     /// <summary>
     /// Actualiza los datos de un usuario existente.

@@ -14,12 +14,12 @@ namespace apitienda.Models
         /// <summary>
         /// Obtiene o establece el identificador único del usuario.
         /// </summary>
-        public Guid id { get; set; } = Guid.NewGuid();
+        public Guid id { get; set; } 
 
         /// <summary>
         /// Obtiene o establece la contraseña del usuario.
         /// </summary>
-        public string password { get; set; } = string.Empty;
+        public required string password { get; set; } 
 
         /// <summary>
         /// Obtiene o establece la fecha y hora del último inicio de sesión del usuario.

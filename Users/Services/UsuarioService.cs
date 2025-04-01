@@ -4,6 +4,7 @@ public class UsuarioService : IUsuarioService
 {
     private readonly IUsuarioDAO _iUsuarioDAO; 
     private readonly UsuarioMapper _usuarioMapper; 
+    private readonly CreateUserMapper _createUserMapper; 
     private readonly PasswordResetEmail _emailService; // Inyectar EmailService
 
 
@@ -12,10 +13,11 @@ public class UsuarioService : IUsuarioService
     /// </summary>
     /// <param name="usuarioDAO">El DAO para la interacción con la base de datos.</param>
     /// <param name="usuarioMapper">El mapper para convertir entre entidades y DTOs.</param>
-    public UsuarioService(UsuarioDAO usuarioDAO, UsuarioMapper usuarioMapper, PasswordResetEmail emailService)
+    public UsuarioService(IUsuarioDAO iUsuarioDAO, UsuarioMapper usuarioMapper, CreateUserMapper createUserMapper, PasswordResetEmail emailService)
     {
-        _iUsuarioDAO = usuarioDAO;
+        _iUsuarioDAO = iUsuarioDAO;
         _usuarioMapper = usuarioMapper;
+        _createUserMapper = createUserMapper;
         _emailService = emailService; // Asignar en el constructor
     }
 
@@ -24,21 +26,44 @@ public class UsuarioService : IUsuarioService
     /// Obtiene una lista de usarios donde tengamos que pasarle parametros 
     /// </summary>
     /// <returns>Una lista de objetos <see cref="UsuarioDTO"/>.</returns>
-    public async  Task<IActionResult> GetAllAsync2(int safePage, int safeLimit, string? sort, string safeOrder, bool safeActive, bool safeisDeleted, bool safeIsSuperuser, bool safeEmailVerified)
+    public async  Task<IActionResult> GetAllAsync2(int? safePage, int? safeLimit, string? sort, string? safeOrder, bool? safeActive, bool? safeisDeleted, bool? safeIsSuperuser, bool? safeEmailVerified)
     {
+        if(!safePage.HasValue && !safeLimit.HasValue && string.IsNullOrEmpty(sort) && string.IsNullOrEmpty(safeOrder) && !safeActive.HasValue && !safeisDeleted.HasValue && !safeIsSuperuser.HasValue && !safeEmailVerified.HasValue)
+        {
+            safeisDeleted = false;
+        }
+        
         SentenciaUsuarios Crearsentencia = new SentenciaUsuarios(safePage, safeLimit, sort, safeOrder, safeActive, safeisDeleted, safeIsSuperuser, safeEmailVerified);
         
+
         var sentencia = Crearsentencia.CrearSenentiaSQLUser();
         var usuarios = await _iUsuarioDAO.GetUserAsync(sentencia.Sentencia, sentencia.Parametros);
         
-        if(usuarios.Any() || usuarios == null)
+        if(usuarios == null || !usuarios.Any())
         {
             return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("getAllUser404")));
         }
         
+        var numResultado = usuarios.Count();
         var resultado = usuarios.Select(u => _usuarioMapper.ToDTO(u)).ToList();
         
-        return new OkObjectResult(new ApiResponse<ResponseGetUsers<List<UsuarioDTO>>>(200,MessageService.Instance.GetMessage("getAlluser200"),new ResponseGetUsers<List<UsuarioDTO>>(safePage, safeLimit, sort, safeOrder, safeActive, safeisDeleted, safeIsSuperuser, safeEmailVerified, resultado)));
+        /// <summary>
+        /// Retornamos un ok 200 y un mensaje de éxito.
+        /// Utilizamos ApiResponse para estructurar la respuesta.
+        /// La respuesta incluye un objeto ResponseGetUsers que contiene información adicional sobre la paginación y los filtros aplicados.
+        /// </summary>
+        return new OkObjectResult(new ApiResponse<ResponseGetUsers<List<UsuarioDTO>>>(200,MessageService.Instance.GetMessage("getAlluser200"),
+                                  new ResponseGetUsers<List<UsuarioDTO>>(numResultado,         //Total de usuarios
+                                                                         sentencia.valores[7], //Valor correspondiente a la paginación
+                                                                         sentencia.valores[6], //Valor correspondiente al límite
+                                                                         sentencia.valores[4], //Valor correspondiente al sort
+                                                                         sentencia.valores[5], //Valor correspondiente al safeOrder
+                                                                         sentencia.valores[0], //Valor correspondiente a la actividad
+                                                                         sentencia.valores[1], //Valor correspondiente a la eliminación
+                                                                         sentencia.valores[2], //Valor correspondiente al superusuario
+                                                                         sentencia.valores[3], //Valor correspondiente a la verificación del correo
+                                                                         resultado             //Lista de usuarios
+                                                                         )));
     
     }
 
@@ -55,7 +80,7 @@ public class UsuarioService : IUsuarioService
         
         if(usuario == null)
         {
-            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("ActivateUserUser400")));
+            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("ActivateUserUser404")));
         }
 
         if(usuario.is_active){
@@ -95,14 +120,14 @@ public class UsuarioService : IUsuarioService
     /// </summary>
     /// <param name="usuarioDTO">Los datos del usuario en formato DTO.</param>
     /// <returns>Una tarea que representa la operación de inserción.</returns>
-    public async Task<IActionResult> AddAsync(UsuarioDTO usuarioDTO)
+    public async Task<IActionResult> AddAsync(UsuarioCreateDTO usuarioCreateDTO)
     {
 
-        var usuario = _usuarioMapper.ToEntity(usuarioDTO); 
+        var usuario = _createUserMapper.ToEntity(usuarioCreateDTO); 
+        var usuarioDTO = _usuarioMapper.ToDTO(usuario);
         await _iUsuarioDAO.AddAsync(usuario); 
 
-        var resultado = new UsuarioDTOResponceExtends(usuario.id,usuarioDTO);
-        
+        var resultado = new UsuarioDTOResponceExtends(usuario.id,usuarioDTO); 
         return new CreatedResult("", new ApiResponse<UsuarioDTOResponceExtends>(201, MessageService.Instance.GetMessage("AddAsyncUser201"),resultado));
     }
 
@@ -160,8 +185,8 @@ public class UsuarioService : IUsuarioService
     public async Task<IActionResult> UpdatePartialAsync(Guid id, UsuarioPatchDTO usuarioDTO)
     {
         
-
         var existingUser = await _iUsuarioDAO.GetByIdAsync(id);
+        
         if (existingUser == null)
         {
             return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("UpdatePartialAsyncUser404")));
@@ -194,21 +219,24 @@ public class UsuarioService : IUsuarioService
     /// <exception cref="InvalidOperationException">Si el usuario no estaba eliminado.</exception>
     public async Task<IActionResult> RestoreUserAsync(Guid id)
     {
+        var restaurarUsuario = await _iUsuarioDAO.GetByIdAsync(id);
         
-        var restaurado = await _iUsuarioDAO.RestoreAsync(id); 
-        if (!restaurado)
+        if (restaurarUsuario == null)
         {
-            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("RestoreUserAsyncUser404"))); // Usuario no encontrado (404)
+            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("RestoreUserAsyncUser404")));
         }
-
-        var usuario = await _iUsuarioDAO.GetByIdAsync(id, true); 
         
-        if (usuario == null) 
+        if (!restaurarUsuario.is_deleted)
         {
-            return new NotFoundObjectResult(new ApiResponse<string>(404, MessageService.Instance.GetMessage("RestoreUserAsyncUser404")));
+            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("RestoreUserAsyncUser400")));
         }
-
-        var resultado = _usuarioMapper.ToDTO(usuario);
+        
+        restaurarUsuario.is_deleted = false;
+        restaurarUsuario.deleted_at = null; 
+        restaurarUsuario.modified_at = DateTimeOffset.UtcNow; 
+        await _iUsuarioDAO.UpdateAsync(restaurarUsuario);
+  
+        var resultado = _usuarioMapper.ToDTO(restaurarUsuario);
         return new OkObjectResult(new ApiResponse<UsuarioDTO>(200,MessageService.Instance.GetMessage("RestoreUserAsyncUser200"),resultado));
     }
 

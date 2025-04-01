@@ -1,19 +1,21 @@
 using Dapper;
 public class SentenciaUsuarios
 {
-    int safePage;
-    int safeLimit;
+    int? safePage;
+    int? safeLimit;
     string? sort;
-    string safeOrder;
-    bool safeActive;
-    bool safeisDeleted;
-    bool safeIsSuperuser;
-    bool safeEmailVerified; 
+    string? safeOrder;
+    bool? safeActive;
+    bool? safeisDeleted;
+    bool? safeIsSuperuser;
+    bool? safeEmailVerified; 
+
+    object[] valores = new object[8];
 
     public string sentencia = "SELECT * FROM \"Users\" WHERE 1=1 ";
 
     // Primary Constructor
-    public SentenciaUsuarios(int safePage, int safeLimit, string? sort, string safeOrder, bool safeActive, bool safeisDeleted, bool safeIsSuperuser, bool safeEmailVerified)
+    public SentenciaUsuarios(int? safePage, int? safeLimit, string? sort, string? safeOrder, bool? safeActive, bool? safeisDeleted, bool? safeIsSuperuser, bool? safeEmailVerified)
     {
         this.safePage = safePage;
         this.safeLimit = safeLimit;
@@ -25,32 +27,57 @@ public class SentenciaUsuarios
         this.safeEmailVerified = safeEmailVerified;
     }
 
-    public (string Sentencia, DynamicParameters Parametros) CrearSenentiaSQLUser()
+    public (string Sentencia, DynamicParameters Parametros,object[] valores) CrearSenentiaSQLUser()
     {
         var parametros = new DynamicParameters();
-        sentencia += " AND is_active = @active ";
-        parametros.Add("@active", safeActive);
-
-        sentencia += " AND is_deleted = @is_deleted ";
-        parametros.Add("@is_deleted", safeisDeleted);
-
-        sentencia += " AND is_superuser = @is_superuser ";
-        parametros.Add("@is_superuser", safeIsSuperuser);
-
-        sentencia += " AND email_verified = @email_verified ";
-        parametros.Add("@email_verified", safeEmailVerified);
-
-        //Verifiquemos que el orden no sea null ya que safeOrder tiene valor asc por defecto.
-        if (!string.IsNullOrEmpty(sort))
+        
+        if(safeActive.HasValue)
         {
-            sentencia += $" ORDER BY {sort} {safeOrder} ";
+            sentencia += " AND is_active = @active ";
+            parametros.Add("@active", safeActive);
+            valores[0] = safeActive;
+        }
+        
+        if(safeisDeleted.HasValue)
+        {
+            sentencia += " AND is_deleted = @is_deleted ";
+            parametros.Add("@is_deleted", safeisDeleted);
+            valores[1] = safeisDeleted;
+        }
+        
+        if(safeIsSuperuser.HasValue)
+        {
+            sentencia += " AND is_superuser = @is_superuser ";
+            parametros.Add("@is_superuser", safeIsSuperuser);
+            valores[2] = safeIsSuperuser;
         }
 
-        // Paginación
-        sentencia += " LIMIT @limit OFFSET @offset ";
-        parametros.Add("@limit", safeLimit);
-        parametros.Add("@offset", (safePage - 1) * safeLimit);
+        if(safeEmailVerified.HasValue)
+        {
+            sentencia += " AND email_verified = @email_verified ";
+            parametros.Add("@email_verified", safeEmailVerified);
+            valores[3] = safeEmailVerified;
+        }
 
-        return (sentencia, parametros);
+        if (!string.IsNullOrEmpty(sort) && !string.IsNullOrEmpty(safeOrder) )
+        {
+            sentencia += $" ORDER BY @sort @order";
+            parametros.Add("@sort", sort);
+            parametros.Add("@order", safeOrder);
+            valores[4] = sort;
+            valores[5] = safeOrder;
+        }
+
+        if(safeLimit.HasValue && safePage.HasValue )
+        {
+            // Paginación
+            sentencia += " LIMIT @limit OFFSET @offset ";
+            parametros.Add("@limit", safeLimit);
+            parametros.Add("@offset", (safePage - 1) * safeLimit);
+            valores[6] = safeLimit;
+            valores[7] = safePage;
+        }
+
+        return (sentencia, parametros,valores);
     }
 }

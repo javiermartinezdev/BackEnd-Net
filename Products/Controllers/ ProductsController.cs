@@ -9,11 +9,11 @@ using productos.Models;
 [ApiController]
 public class ProductController : ControllerBase
 {
-    private readonly IProductService _productService;
+    private readonly IProductService _iProductService;
 
     public ProductController(IProductService productService)
     {
-        _productService = productService;
+        _iProductService = productService;
     }
 
     /// <summary>
@@ -58,7 +58,7 @@ public class ProductController : ControllerBase
             bool safeIsdelete = is_deleted ?? false;
             string safeOrder = order ?? "asc";
 
-            var result = await _productService.GetAllProductsAsync(safePage,safeLimit,sort,safeOrder,safeStatus,safeIsdelete,type);
+            var result = await _iProductService.GetAllProductsAsync(safePage,safeLimit,sort,safeOrder,safeStatus,safeIsdelete,type);
             return result;
         
         }catch(Exception ex){
@@ -79,7 +79,7 @@ public class ProductController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerGuidEmpty400"))); 
             }
 
-            var result = await _productService.GetProductByIdAsync(id);  
+            var result = await _iProductService.GetProductByIdAsync(id);  
             return result;  
 
         }catch(Exception ex){
@@ -104,7 +104,7 @@ public class ProductController : ControllerBase
             {
                 return BadRequest(new ApiResponse<string>(404,MessageService.Instance.GetMessage("controllerProductDTO400")));  
             }
-            var result = await _productService.CreateProductAsync(productDTO);
+            var result = await _iProductService.CreateProductAsync(productDTO);
             return result;  
         }
         catch (Exception ex)
@@ -136,7 +136,7 @@ public class ProductController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerProductDTO400")));  
             }
         
-            var result = await _productService.Put(id, productUpdateDTO);
+            var result = await _iProductService.Put(id, productUpdateDTO);
             return result;
         }
         catch (Exception ex)
@@ -163,7 +163,7 @@ public class ProductController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerProductDTO400")));  
             }
 
-            var result = await _productService.Patch(id, productPartialUpdate);
+            var result = await _iProductService.Patch(id, productPartialUpdate);
             return result;
         }
         catch (Exception ex)
@@ -184,7 +184,7 @@ public class ProductController : ControllerBase
             {
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerGuidEmpty400")));  
             }
-            var result = await _productService.DeleteProduct(id);
+            var result = await _iProductService.DeleteProduct(id);
             return result;
 
         }catch(Exception ex){
@@ -207,7 +207,7 @@ public class ProductController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerGuidEmpty400")));
             }
 
-            var result = await _productService.RestoreProduct(id);
+            var result = await _iProductService.RestoreProduct(id);
             return result; 
         }
         catch (Exception ex)
@@ -230,7 +230,7 @@ public class ProductController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerIsNullOrEmpty400")));  
             }
         
-            var result = await _productService.GetProductsSearh(search);
+            var result = await _iProductService.GetProductsSearh(search);
             return result;
         }
         catch (Exception ex)
@@ -258,7 +258,7 @@ public class ProductController : ControllerBase
             }
 
         
-            var result = await _productService.GetProductsPrice(min_price,max_price);
+            var result = await _iProductService.GetProductsPrice(min_price,max_price);
             return result;
 
         }catch(Exception ex){
@@ -285,7 +285,7 @@ public class ProductController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerProductDTO400")));
             }
         
-            var result = await _productService.UpdateImage(id, updateImage);
+            var result = await _iProductService.UpdateImage(id, updateImage);
             return result;
         }
         catch (Exception ex)
@@ -307,7 +307,7 @@ public class ProductController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerGuidEmpty400")));
             }
             
-            var result = await _productService.DeactivateProduct(id);
+            var result = await _iProductService.DeactivateProduct(id);
             return result; 
         
         }catch(Exception ex){
@@ -330,7 +330,7 @@ public class ProductController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerGuidEmpty400")));
             }
 
-            var result = await _productService.ActivateProduct(id);
+            var result = await _iProductService.ActivateProduct(id);
             return result;  
 
         }catch(Exception ex){

@@ -16,7 +16,7 @@ Task<List<Usuario>> GetUserAsync(string sentencia, DynamicParameters parametros)
 /// <param name="id">Identificador único del usuario.</param>
 /// <param name="includeDeleted">Indica si se deben incluir usuarios eliminados.</param>
 /// <returns>El usuario encontrado o null si no existe.</returns>
-Task<Usuario?> GetByIdAsync(Guid id, bool includeDeleted = false);
+Task<Usuario?> GetByIdAsync(Guid id);
 
 /// <summary>
 /// Agrega un nuevo usuario a la base de datos.

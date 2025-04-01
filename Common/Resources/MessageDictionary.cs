@@ -63,6 +63,7 @@ public sealed class MessageService //sealed aseguramos que no puedan heredar de 
             {"controllerActivateProduct500","Error interno del servidor al activar el producto."},
             {"controller400","Datos invalidos en la solicitud."},
             {"RestoreUserAsyncUser404","Usuario no encontrado."},
+            {"RestoreUserAsyncUser400","El usuario no estaba eliminado."},
             {"controllerUser500","Error interno del servidor."},
             {"RestoreUserAsyncUser200","Usuario restaurado exitosamente ."},
             {"ActivateUserUser404","Usuario no encontrado."},
@@ -81,7 +82,10 @@ public sealed class MessageService //sealed aseguramos que no puedan heredar de 
             {"DeactivateUserAsyncUser200","Usuario activado exitosamente ."},
             {"UpdateAsyncUser200","Usuario actualizado exitosamente ."},
             {"UpdatePartialAsyncUser200","Usuario actualizado exitosamente ."},
+            {"UpdatePartialAsyncUser404","Usuario no encontrado ."},
+            {"UpdatePartialAsyncUser400","El usuario ya estaba activo ."},
             {"VerifyEmailAsyncUser400","El email ya estaba verificado ."},
+            {"VerifyEmailAsyncUser200","Email verificado exitosamente ."},
             {"ChangePasswordAsyncUser400","La contraseña actual no es correcta ."},
             {"ChangePasswordAsyncUser400Size","La nueva contraseña debe tener al menos 8 caracteres y contener letras y números."},
             {"ChangePasswordAsyncUser400Confirmation","La nueva contraseña y la confirmación no coinciden ."},
@@ -90,6 +94,7 @@ public sealed class MessageService //sealed aseguramos que no puedan heredar de 
             {"RequestPasswordResetAsyncUser400","El email no ha sido verificado ."},
             {"RequestPasswordResetAsyncUser500","Error al enviar el correo de restablecimiento ."},
             {"RequestPasswordResetAsyncUser200","Se ha enviado un correo con el enlace de restablecimiento."}
+            
         };
     }
 

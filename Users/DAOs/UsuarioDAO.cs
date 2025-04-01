@@ -41,14 +41,10 @@ public class UsuarioDAO : IUsuarioDAO
     /// <param name="id">El identificador único del usuario.</param>
     /// <param name="includeDeleted">Si es verdadero, también incluye usuarios eliminados.</param>
     /// <returns>El usuario correspondiente o <c>null</c> si no se encuentra.</returns>
-    public async Task<Usuario?> GetByIdAsync(Guid id, bool includeDeleted = false)
+    public async Task<Usuario?> GetByIdAsync(Guid id)
     {
-        if (includeDeleted)
-        {
-            return await _context.Users.FirstOrDefaultAsync(u => u.id == id);
-        }
-
-        return await _context.Users.FirstOrDefaultAsync(u => u.id == id && !u.is_deleted);
+        return await _context.Users.FirstOrDefaultAsync(u => u.id == id);   
+        
     }
 
     /// <summary>
@@ -132,7 +128,7 @@ public class UsuarioDAO : IUsuarioDAO
     /// <returns>Una tarea que representa la operación de restauración.</returns>
     public async Task<bool> RestoreAsync(Guid id)
     {
-        var usuario = await _context.Users.FirstOrDefaultAsync(u => u.id == id && u.is_deleted);
+        var usuario = await _context.Users.FirstOrDefaultAsync(u => u.id == id);
         if (usuario == null)
         {
             return false; // Usuario no encontrado

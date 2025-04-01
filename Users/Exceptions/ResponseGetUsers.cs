@@ -2,21 +2,39 @@ using System.Text.Json.Serialization;
 
 public class ResponseGetUsers<T>
 {
-    public int Page { get; set; }
-    public int Limit { get; set; }
+    public int Total { get; set; }
     
     [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] //Para evitar imprimir valores null al serializar la respuesta.
-    public string ? Sort { get; set; }
-    public string Order { get; set; }
-    public bool is_active { get; set; }
-    public bool is_deleted { get; set; }
-    public bool is_superuser { get; set; }
-    public bool email_verified { get; set; }
-    public T Users { get; set; }
+    public object? Page { get; set; }
+
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
+    public object? Limit { get; set; }
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
+    public object? Sort { get; set; }
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
+    public object? Order { get; set; }
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
+    public object? is_active { get; set; }
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
+    public object? is_deleted { get; set; }
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
+    public object? is_superuser { get; set; }
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
+    public object? email_verified { get; set; }
+    
+    [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)] 
+    public T? Users { get; set; }
 
     // Constructor
-    public ResponseGetUsers(int page, int limit, string? sort,string order, bool is_active, bool is_deleted , bool is_superuser , bool email_verified , T users)
+    public ResponseGetUsers(int total,object? page, object? limit, object? sort,object? order, object? is_active, object? is_deleted , object? is_superuser , object? email_verified , T? users)
     {
+        Total = total;
         Page = page;
         Limit = limit;
         Sort = sort;
