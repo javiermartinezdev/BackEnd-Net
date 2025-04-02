@@ -52,13 +52,13 @@ public class ProductController : ControllerBase
             /// <summary>
             /// Se determina su el valor es null y si no lo es se le asigna el valor despues de '??' a las variables.
             /// </summary>
-            int safePage = page ?? 1;
+            /*int safePage = page ?? 1;
             int safeLimit = limit ?? 10;
             bool safeStatus = status ?? true;
             bool safeIsdelete = is_deleted ?? false;
-            string safeOrder = order ?? "asc";
+            string safeOrder = order ?? "asc";*/
 
-            var result = await _iProductService.GetAllProductsAsync(safePage,safeLimit,sort,safeOrder,safeStatus,safeIsdelete,type);
+            var result = await _iProductService.GetAllProductsAsync(page,limit,sort,order,status,is_deleted,type);
             return result;
         
         }catch(Exception ex){

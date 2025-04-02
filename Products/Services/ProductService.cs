@@ -23,9 +23,15 @@ public class ProductService : IProductService
     /// <summary>
     /// Obtiene todos los productos de la base de datos.
     /// </summary>
-    public async Task<IActionResult> GetAllProductsAsync(int safePage,int safeLimit,string? sort,string? safeOrder,bool safeStatus,bool safeIsdelete,string? type)
+    public async Task<IActionResult> GetAllProductsAsync(int? safePage,int? safeLimit,string? sort,string? safeOrder,bool? safeStatus,bool? safeIsdelete,string? type)
     {
     
+        if(!safePage.HasValue && !safeLimit.HasValue && string.IsNullOrEmpty(sort) && string.IsNullOrEmpty(safeOrder) && !safeStatus.HasValue && !safeIsdelete.HasValue && string.IsNullOrEmpty(type))
+        {
+            safeIsdelete = false;
+        }
+
+        
         SentenciaProductos crearSentencia = new SentenciaProductos(safePage,safeLimit,sort,safeOrder,safeStatus,safeIsdelete,type);
         var sentencia = crearSentencia.CrearSenentiaSQLProduct();
 
@@ -36,6 +42,8 @@ public class ProductService : IProductService
            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("Productos404")));  
         }
 
+        
+        
         //Contamos el numero de resultados
         var numResult = products.Count();
         
@@ -46,7 +54,7 @@ public class ProductService : IProductService
         /// Lanza un ok 200 y regresa una respuesta de tipo ResponseGetProducts que a su ves regresa los productos.
         /// </summary>    
         return new OkObjectResult(new ApiResponse<ResponseGetProducts<List<ProductDTO>>>(200,MessageService.Instance.GetMessage("Productos200"), 
-        new ResponseGetProducts<List<ProductDTO>>(numResult, safePage, safeLimit, result, sort, safeOrder, safeStatus, safeIsdelete, type)));
+        new ResponseGetProducts<List<ProductDTO>>(numResult, sentencia.valores[6], sentencia.valores[5], result, sentencia.valores[3], sentencia.valores[4], sentencia.valores[0], sentencia.valores[1], sentencia.valores[2])));
 
     }
 
