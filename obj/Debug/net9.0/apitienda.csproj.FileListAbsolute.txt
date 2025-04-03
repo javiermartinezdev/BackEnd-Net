@@ -655,3 +655,4 @@ D:/Carpeta UAM/Horario 24O/dotnet/apitienda/BackEnd-Net/bin/Debug/net9.0/Microso
 /home/octaviio/Documentos/BackEnd-Net/obj/Debug/net9.0/apitienda.pdb
 /home/octaviio/Documentos/BackEnd-Net/obj/Debug/net9.0/apitienda.genruntimeconfig.cache
 /home/octaviio/Documentos/BackEnd-Net/obj/Debug/net9.0/ref/apitienda.dll
+/home/octaviio/Documentos/BackEnd-Net/bin/Debug/net9.0/DnsClient.dll

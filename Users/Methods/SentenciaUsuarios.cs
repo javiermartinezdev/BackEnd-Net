@@ -10,11 +10,15 @@ public class SentenciaUsuarios
     bool? safeIsSuperuser;
     bool? safeEmailVerified; 
 
+    // Variables para los valores la validacion de emal y usuario
+    string Email = string.Empty;
+    string Username = string.Empty;
+
     object[] valores = new object[8];
 
     public string sentencia = "SELECT * FROM \"Users\" WHERE 1=1 ";
 
-    // Primary Constructor
+    // Constructor para la sentencias Query
     public SentenciaUsuarios(int? safePage, int? safeLimit, string? sort, string? safeOrder, bool? safeActive, bool? safeisDeleted, bool? safeIsSuperuser, bool? safeEmailVerified)
     {
         this.safePage = safePage;
@@ -26,7 +30,13 @@ public class SentenciaUsuarios
         this.safeIsSuperuser = safeIsSuperuser;
         this.safeEmailVerified = safeEmailVerified;
     }
-
+    // Constructor para la validacion de email y username
+    public SentenciaUsuarios(string email,string username)
+    {
+        Email = email;
+        Username = username;
+    }
+    // Método para crear la sentencia SQL Query
     public (string Sentencia, DynamicParameters Parametros,object[] valores) CrearSenentiaSQLUser()
     {
         var parametros = new DynamicParameters();
@@ -80,4 +90,14 @@ public class SentenciaUsuarios
 
         return (sentencia, parametros,valores);
     }
+    // Método para crear la sentencia SQL para validar email y username
+    public (string Sentencia, DynamicParameters Parametros) CrearSentenciaSQLValidarEmailUsername()
+    {
+        var parametros = new DynamicParameters();
+        sentencia += " AND (username = @username OR email = @email) ";
+        parametros.Add("@username", Username);
+        parametros.Add("@email", Email);
+        return (sentencia, parametros);
+    }
+
 }

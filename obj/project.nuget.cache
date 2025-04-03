@@ -1,11 +1,12 @@
 {
   "version": 2,
-  "dgSpecHash": "orl9WO89DuI=",
+  "dgSpecHash": "3B3no+zMyvA=",
   "success": true,
   "projectFilePath": "/home/octaviio/Documentos/BackEnd-Net/apitienda.csproj",
   "expectedPackageFiles": [
     "/home/octaviio/.nuget/packages/bcrypt.net-next/4.0.3/bcrypt.net-next.4.0.3.nupkg.sha512",
     "/home/octaviio/.nuget/packages/dapper/2.1.66/dapper.2.1.66.nupkg.sha512",
+    "/home/octaviio/.nuget/packages/dnsclient/1.8.0/dnsclient.1.8.0.nupkg.sha512",
     "/home/octaviio/.nuget/packages/dotnetenv/3.1.1/dotnetenv.3.1.1.nupkg.sha512",
     "/home/octaviio/.nuget/packages/humanizer.core/2.14.1/humanizer.core.2.14.1.nupkg.sha512",
     "/home/octaviio/.nuget/packages/microsoft.aspnetcore.authentication.jwtbearer/9.0.1/microsoft.aspnetcore.authentication.jwtbearer.9.0.1.nupkg.sha512",

@@ -8,7 +8,7 @@ public class UsuarioCreateDTO
     
     [Required]
     public required string password { get; set; }
-    public string? email { get; set; }
+    public required string email { get; set; }
     [Required]
     public required string first_name { get; set; }
     [Required]

@@ -78,6 +78,8 @@ public sealed class MessageService //sealed aseguramos que no puedan heredar de 
             {"getAlluser200","Usuarios obtenidos exitosamente ."},
             {"controllerPostUser","Datos inválidos ."},
             {"AddAsyncUser201","Usuario creado exitosamente ."},
+            {"AddAsyncUser409","Nombre de usuario o email ya registrado ."},
+            {"AddAsyncUserEmail400","Email invalido ."}, //Se agrego pero no esta espeficicado en el PDF
             {"DeactivateUserAsyncUser400","El usuario ya estaba activo ."},
             {"DeactivateUserAsyncUser200","Usuario activado exitosamente ."},
             {"UpdateAsyncUser200","Usuario actualizado exitosamente ."},
