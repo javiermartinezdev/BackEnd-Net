@@ -38,14 +38,14 @@ builder.Services.AddDbContext<DataContextProduct>(
 /// Registra los servicios de acceso a datos, mapeo y lógica de negocio en la inyección de dependencias.
 /// </summary>
 builder.Services.AddScoped<IUsuarioDAO,UsuarioDAO>();
-builder.Services.AddSingleton<UsuarioMapper>();
+builder.Services.AddScoped<UsuarioMapper>();
 builder.Services.AddScoped<CreateUserMapper>();
 builder.Services.AddScoped<IUsuarioService,UsuarioService>(); // Aquí agregamos UsuarioService
 builder.Services.AddScoped<PasswordResetEmail>();
 
 builder.Services.AddScoped<IProductDAO, ProductDAO>(); 
 builder.Services.AddScoped<IProductService, ProductService>();
-builder.Services.AddSingleton<ProductMapper>();
+builder.Services.AddScoped<ProductMapper>();
 builder.Services.AddScoped<CreateProductMapper>();
 
 

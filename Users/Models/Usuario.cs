@@ -69,8 +69,8 @@ namespace apitienda.Models
         /// <summary>
         /// Obtiene o establece la fecha y hora en que el usuario fue eliminado.
         /// </summary>
-        public DateTimeOffset? deleted_at { get; set; }
-
+        public DateTimeOffset? deleted_at { get; set; }  
+        
         /// <summary>
         /// Obtiene o establece el nombre de usuario del usuario.
         /// </summary>
@@ -108,6 +108,8 @@ namespace apitienda.Models
 
         /// <summary>
         /// Obtiene o establece la fecha de nacimiento del usuario.
+        /// </summary>/// <summary>
+        /// Obtiene o establece el nombre de usuario del usuario.
         /// </summary>
         public DateTime? date_of_birth { get; set; }
 

@@ -493,6 +493,7 @@ D:/Carpeta UAM/Horario 24O/dotnet/apitienda/BackEnd-Net/bin/Debug/net9.0/Microso
 /home/octaviio/Documentos/BackEnd-Net/bin/Debug/net9.0/apitienda.pdb
 /home/octaviio/Documentos/BackEnd-Net/bin/Debug/net9.0/BCrypt.Net-Next.dll
 /home/octaviio/Documentos/BackEnd-Net/bin/Debug/net9.0/Dapper.dll
+/home/octaviio/Documentos/BackEnd-Net/bin/Debug/net9.0/DnsClient.dll
 /home/octaviio/Documentos/BackEnd-Net/bin/Debug/net9.0/DotNetEnv.dll
 /home/octaviio/Documentos/BackEnd-Net/bin/Debug/net9.0/Humanizer.dll
 /home/octaviio/Documentos/BackEnd-Net/bin/Debug/net9.0/Microsoft.AspNetCore.Authentication.JwtBearer.dll
@@ -655,4 +656,3 @@ D:/Carpeta UAM/Horario 24O/dotnet/apitienda/BackEnd-Net/bin/Debug/net9.0/Microso
 /home/octaviio/Documentos/BackEnd-Net/obj/Debug/net9.0/apitienda.pdb
 /home/octaviio/Documentos/BackEnd-Net/obj/Debug/net9.0/apitienda.genruntimeconfig.cache
 /home/octaviio/Documentos/BackEnd-Net/obj/Debug/net9.0/ref/apitienda.dll
-/home/octaviio/Documentos/BackEnd-Net/bin/Debug/net9.0/DnsClient.dll

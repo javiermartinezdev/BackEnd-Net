@@ -123,28 +123,23 @@ public class UsuarioService : IUsuarioService
     public async Task<IActionResult> AddAsync(UsuarioCreateDTO usuarioCreateDTO)
     {
         
-        //Verificamos que el email sea valido
-        VerificaEmail verificaEmail = new VerificaEmail();
-        if(!verificaEmail.DominioExiste(usuarioCreateDTO.email))
-        {
-            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("AddAsyncUserEmail400")));
-        }
-
         SentenciaUsuarios Crearsentencia = new SentenciaUsuarios(usuarioCreateDTO.email, usuarioCreateDTO.username);
-        var sentencia = Crearsentencia.CrearSenentiaSQLUser();
+        var sentencia = Crearsentencia.CrearSentenciaSQLValidarEmailUsername();
         var existeUsuario = await _iUsuarioDAO.GetUserAsync(sentencia.Sentencia, sentencia.Parametros);
         
-        if(existeUsuario != null && existeUsuario.Any())
+
+        if(!(existeUsuario == null || !existeUsuario.Any()))
         {
             return new ObjectResult(new ApiResponse<string>(409,MessageService.Instance.GetMessage("AddAsyncUser409"))){
                 StatusCode = StatusCodes.Status409Conflict
             };
         }
-       
+        
         var usuario = _createUserMapper.ToEntity(usuarioCreateDTO); 
         var usuarioDTO = _usuarioMapper.ToDTO(usuario);
+        
         await _iUsuarioDAO.AddAsync(usuario); 
-
+        
         var resultado = new UsuarioDTOResponceExtends(usuario.id,usuarioDTO); 
         return new CreatedResult("", new ApiResponse<UsuarioDTOResponceExtends>(201, MessageService.Instance.GetMessage("AddAsyncUser201"),resultado));
 

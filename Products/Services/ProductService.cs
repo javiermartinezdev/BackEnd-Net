@@ -93,7 +93,13 @@ public class ProductService : IProductService
     
         var result = _productMapper.ToDTO(product);
 
-        return new OkObjectResult(new ApiResponse<ProductDTO>(200,MessageService.Instance.GetMessage("Productoscreate200"),result));
+        var respuestaDTO = new ProductoResponseDTO{
+            name = result.name,
+            type = result.type,
+            price = result.price,
+        };
+
+        return new OkObjectResult(new ApiResponse<ProductoResponseDTO>(200,MessageService.Instance.GetMessage("Productoscreate200"),respuestaDTO));
     }
 
 

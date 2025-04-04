@@ -2,11 +2,11 @@ using apitienda.Models;
 
 public class CreateUserMapper
 {
-    public Usuario ToEntity(UsuarioCreateDTO userDTO)
+    public Usuario ToEntity(UsuarioCreateDTO userCreateDTO)
     {
         return new Usuario
         {
-            //Lo que se genera automaticamente
+            // Generados automáticamente
             id = Guid.NewGuid(),
             created_at = DateTimeOffset.UtcNow,
             modified_at = DateTimeOffset.UtcNow,
@@ -18,32 +18,33 @@ public class CreateUserMapper
             last_login = null,
             password_reset_token = null,
             password_reset_token_expiration = null,
-            
-            //Los los datos del cliente nos dio
-            username = userDTO.username,
-            password = userDTO.password,
-            email = userDTO.email,
-            first_name = userDTO.first_name,
-            last_name = userDTO.last_name,
-            is_active = userDTO.is_active,
-            is_superuser = userDTO.is_superuser,
-            profile_picture = userDTO.profile_picture,
-            nationality = userDTO.nationality,
-            occupation = userDTO.occupation,
-            date_of_birth = userDTO.date_of_birth,
-            contact_phone_number = userDTO.contact_phone_number,
-            gender = userDTO.gender,
-            address = userDTO.address,
-            address_number = userDTO.address_number,
-            address_interior_number = userDTO.address_interior_number,
-            address_complement = userDTO.address_complement,
-            address_neighborhood = userDTO.address_neighborhood,
-            address_zip_code = userDTO.address_zip_code,
-            address_city = userDTO.address_city,
-            address_state = userDTO.address_state,
-            role = userDTO.role
-        
+
+            // Del DTO
+            username = userCreateDTO.username,
+            password = userCreateDTO.password,
+            email = userCreateDTO.email,
+            first_name = userCreateDTO.first_name,
+            last_name = userCreateDTO.last_name,
+            is_active = userCreateDTO.is_active,
+            is_superuser = userCreateDTO.is_superuser,
+            profile_picture = userCreateDTO.profile_picture,
+            nationality = userCreateDTO.nationality,
+            occupation = userCreateDTO.occupation,
+            date_of_birth = userCreateDTO.date_of_birth,
+            contact_phone_number = userCreateDTO.contact_phone_number,
+            gender = userCreateDTO.gender,
+            address = userCreateDTO.address,
+            address_number = userCreateDTO.address_number,
+            address_interior_number = userCreateDTO.address_interior_number,
+            address_complement = userCreateDTO.address_complement,
+            address_neighborhood = userCreateDTO.address_neighborhood,
+            address_zip_code = userCreateDTO.address_zip_code,
+            address_city = userCreateDTO.address_city,
+            address_state = userCreateDTO.address_state,
+            role = userCreateDTO.role,
+
         };
+
     }
     public UsuarioDTOResponceExtends ToDTO(Usuario user)
     {

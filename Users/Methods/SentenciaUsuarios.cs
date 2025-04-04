@@ -11,8 +11,8 @@ public class SentenciaUsuarios
     bool? safeEmailVerified; 
 
     // Variables para los valores la validacion de emal y usuario
-    string Email = string.Empty;
-    string Username = string.Empty;
+    private string?  Email;
+    private string? Username;
 
     object[] valores = new object[8];
 
@@ -97,6 +97,9 @@ public class SentenciaUsuarios
         sentencia += " AND (username = @username OR email = @email) ";
         parametros.Add("@username", Username);
         parametros.Add("@email", Email);
+        Console.WriteLine("username: "+Username);
+        Console.WriteLine("Email: "+Email);
+        
         return (sentencia, parametros);
     }
 

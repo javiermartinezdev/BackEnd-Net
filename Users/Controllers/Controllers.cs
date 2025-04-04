@@ -4,7 +4,10 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using apitienda.Models;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
-using System.Net.Sockets; // Asegúrate de incluir esta directiva
+//using System.Net.Sockets; // Asegúrate de incluir esta directiva
+
+using System.Text.RegularExpressions;
+
 
 /// <summary>
 /// Controlador para gestionar las operaciones relacionadas con los usuarios.
@@ -109,10 +112,20 @@ public class usersController : ControllerBase
             }
             
             if(!ModelState.IsValid)
-            {
+            {   
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerPostUser")));
             }
 
+            /// <summary>
+            /// verifica si el email tiene una correcta sixtaxis.
+            /// </summary>
+            var email = usuarioCreateDTO.email;
+            var emailRegex = new Regex(@"^[^@\s]+@[^@\s]+\.[^@\s]+$");
+
+            if (!emailRegex.IsMatch(email))
+            {
+                return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controllerPostUser")));
+            }
             var usuario = await _iUsuarioService.AddAsync(usuarioCreateDTO);
             return usuario;
         }

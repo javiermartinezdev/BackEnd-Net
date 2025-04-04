@@ -29,8 +29,12 @@ public class UsuarioDAO : IUsuarioDAO
     /// </summary>
     public async Task<List<Usuario>> GetUserAsync(string sentencia, DynamicParameters parametros)
     {
-        using var connection = _context.Database.GetDbConnection();
-        await connection.OpenAsync(); // Asegurar que la conexión se abre antes de usarla
+        //using var connection = _context.Database.GetDbConnection();
+        //await connection.OpenAsync(); // Asegurar que la conexión se abre antes de usarla
+        //return (await connection.QueryAsync<Usuario>(sentencia, parametros)).ToList();
+          var connection = _context.Database.GetDbConnection();
+
+        // Importante: No uses `using` ni abras manualmente la conexión
         return (await connection.QueryAsync<Usuario>(sentencia, parametros)).ToList();
     } 
 
@@ -54,8 +58,16 @@ public class UsuarioDAO : IUsuarioDAO
     /// <returns>Una tarea que representa la operación de inserción.</returns>
     public async Task AddAsync(Usuario usuario)
     {
-        await _context.Users.AddAsync(usuario);
-        await _context.SaveChangesAsync();
+        try
+        {
+            await _context.Users.AddAsync(usuario);
+            await _context.SaveChangesAsync();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error al guardar usuario: " + ex.Message);
+            throw; // o log más detallado
+        }
     }
 
     /// <summary>
