@@ -31,9 +31,9 @@ public interface IUsuarioService
     /// <summary>
     /// Actualiza los datos de un usuario existente.
     /// </summary>
-    /// <param name="usuarioDTO">El DTO con los datos actualizados del usuario.</param>
+    /// <param name="UsuarioUpdate">El DTO con los datos actualizados del usuario.</param>
     /// <returns>Una acción que indica el resultado de la operación.</returns>
-    Task<IActionResult> UpdateAsync(UsuarioDTO usuarioDTO);
+    Task<IActionResult> UpdateAsync(Guid id, UsuarioUpdate usuarioUpdate);
 
     /// <summary>
     /// Elimina un usuario de la base de datos según su ID.

@@ -150,22 +150,71 @@ public class UsuarioService : IUsuarioService
     /// </summary>
     /// <param name="usuarioDTO">Los datos del usuario en formato DTO.</param>
     /// <returns>Una tarea que representa la operación de actualización.</returns>
-    public async Task<IActionResult> UpdateAsync(UsuarioDTO usuarioDTO)
+    public async Task<IActionResult> UpdateAsync(Guid id, UsuarioUpdate usuarioUpdate)
     {
-        var usuario = _usuarioMapper.ToEntity(usuarioDTO); // Convierte el DTO en una entidad.
+        var usuario = await _iUsuarioDAO.GetByIdAsync(id); // Convierte el DTO en una entidad.
 
-        // Asegúrate de que no se rastree una instancia duplicada de la entidad
-        var usuarioExistente = await _iUsuarioDAO.GetByIdAsync(usuario.id);
-
-        if(usuarioExistente == null)
+        if(usuario == null)
         {
-            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("controllerUser404")));
+            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("UpdateAsyncUser404")));
+        }
+        
+        if(usuario.is_deleted)
+        {
+            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("UpdateAsyncUser400Deleted")));
+        }
+        
+        if(usuario.is_active == false)
+        {
+            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("UpdateAsyncUser400Active")));
         }
 
-        _iUsuarioDAO.Detach(usuarioExistente);
+        // Verifica si el correo electrónico ya está en uso por otro usuario
+        SentenciaUsuarios Crearsentencia = new SentenciaUsuarios(usuarioUpdate.email, usuarioUpdate.username);
+        var sentencia = Crearsentencia.CrearSentenciaSQLValidarEmailUsername();
+        var existeUsuario = await _iUsuarioDAO.GetUserAsync(sentencia.Sentencia, sentencia.Parametros);
+       
+        if(!(existeUsuario == null || !existeUsuario.Any()))
+        {
+            return new ObjectResult(new ApiResponse<string>(409,MessageService.Instance.GetMessage("UpdateAsyncUser409"))){
+                StatusCode = StatusCodes.Status409Conflict
+            };
+        }
+
+        // Actualizamos los campos que nos proporciono el usuario
+        usuario.username = usuarioUpdate.username;
+        usuario.password = usuarioUpdate.password;
+        usuario.email = usuarioUpdate.email;
+        usuario.first_name = usuarioUpdate.first_name;
+        usuario.last_name = usuarioUpdate.last_name;
+        usuario.is_active = usuarioUpdate.is_active;
+        usuario.is_superuser = usuarioUpdate.is_superuser;
+        usuario.profile_picture = usuarioUpdate.profile_picture;
+        usuario.nationality = usuarioUpdate.nacionality;
+        usuario.occupation = usuarioUpdate.occupation;
+        usuario.date_of_birth = usuarioUpdate.date_of_birth;
+        usuario.contact_phone_number = usuarioUpdate.contact_phone_number;
+        usuario.gender = usuarioUpdate.gender;
+        usuario.address = usuarioUpdate.address;
+        usuario.address_number = usuarioUpdate.address_number;
+        usuario.address_interior_number = usuarioUpdate.address_interior_number;
+        usuario.address_complement = usuarioUpdate.address_complement;
+        usuario.address_neighborhood = usuarioUpdate.address_neighborhood;
+        usuario.address_zip_code = usuarioUpdate.address_zip_code;
+        usuario.address_city = usuarioUpdate.address_city;
+        usuario.address_state = usuarioUpdate.address_state;
+        usuario.role = usuarioUpdate.role;
+        
+        // Actualiza la fecha de modificación
+        usuario.modified_at = DateTimeOffset.UtcNow; 
+        
+
+        _iUsuarioDAO.Detach(usuario);
         await _iUsuarioDAO.UpdateAsync(usuario);
 
-        var resultado = new UsuarioDTOResponceExtends(usuario.id,usuarioDTO);
+        // Convierte la entidad actualizada a DTO
+        var usuarioDTOResponce = _usuarioMapper.ToDTO(usuario); // Convierte la entidad actualizada a DTO
+        var resultado = new UsuarioDTOResponceExtends(usuario.id,usuarioDTOResponce);
 
         return new OkObjectResult(new ApiResponse<UsuarioDTOResponceExtends>(200,MessageService.Instance.GetMessage("UpdateAsyncUser200"),resultado));
     }
@@ -298,6 +347,7 @@ public class UsuarioService : IUsuarioService
             return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("controllerUser404")));
         }
 
+
         if (!usuario.is_active)
         {
             return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("DeactivateUserAsyncUser400")));
@@ -310,7 +360,7 @@ public class UsuarioService : IUsuarioService
 
         var resultado = new UsuarioDTOResponce(id,usuarioActivado);
         
-        return new OkObjectResult(new ApiResponse<UsuarioDTOResponce>(200,"DeactivateUserAsyncUser200",resultado));
+        return new OkObjectResult(new ApiResponse<UsuarioDTOResponce>(200,MessageService.Instance.GetMessage("DeactivateUserAsyncUser200"),resultado));
     }
     
     /// <summary>
@@ -336,6 +386,12 @@ public class UsuarioService : IUsuarioService
         {
             usuario.password = BCrypt.Net.BCrypt.HashPassword(usuario.password, 12);
             await _iUsuarioDAO.UpdateAsync(usuario);
+        }
+        
+        // Verificar que la contraseña actual no sea igual a la nueva
+        if (model.CurrentPassword==model.NewPassword)
+        {
+            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("ChangePasswordAsyncUser400Current")));
         }
 
         // Verificar que la contraseña actual sea correcta

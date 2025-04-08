@@ -118,6 +118,7 @@ public class ProductService : IProductService
         {
             return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("ProductUpdate400")));  
         }
+        
         // Actualizar solo los campos proporcionados en el DTO, preservando los que no se proporcionan
         product.type = productUpdateDTO.type;  
         product.name = productUpdateDTO.name;  

@@ -29,12 +29,10 @@ public class UsuarioDAO : IUsuarioDAO
     /// </summary>
     public async Task<List<Usuario>> GetUserAsync(string sentencia, DynamicParameters parametros)
     {
-        //using var connection = _context.Database.GetDbConnection();
-        //await connection.OpenAsync(); // Asegurar que la conexión se abre antes de usarla
-        //return (await connection.QueryAsync<Usuario>(sentencia, parametros)).ToList();
-          var connection = _context.Database.GetDbConnection();
+        
+        var connection = _context.Database.GetDbConnection();
 
-        // Importante: No uses `using` ni abras manualmente la conexión
+        // Importante: No uses `using` ni abras manualmente la conexión asi se queda.
         return (await connection.QueryAsync<Usuario>(sentencia, parametros)).ToList();
     } 
 

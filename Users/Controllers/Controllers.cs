@@ -141,11 +141,11 @@ public class usersController : ControllerBase
     /// Actualiza un usuario existente.
     /// </summary>
     [HttpPut("{id}")]
-    public async Task<IActionResult> Put(Guid id, [FromBody] UsuarioDTO usuarioDTO)
+    public async Task<IActionResult> Put(Guid id, [FromBody] UsuarioUpdate usuarioUpdate)
     {
         try
         {
-            if(usuarioDTO == null)
+            if(usuarioUpdate == null)
             {
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
             }
@@ -155,7 +155,7 @@ public class usersController : ControllerBase
                 return BadRequest(new ApiResponse<string>(400,MessageService.Instance.GetMessage("controller400")));
             }
 
-            var updatedUser = await _iUsuarioService.UpdateAsync(usuarioDTO);
+            var updatedUser = await _iUsuarioService.UpdateAsync(id,usuarioUpdate);
             return updatedUser;
         }
         catch(Exception ex)
