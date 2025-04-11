@@ -355,4 +355,29 @@ public class usersController : ControllerBase
             return StatusCode(500, new ApiResponse<string>(500, MessageService.Instance.GetMessage("controllerUser500")));
         }
     }
+
+    /// <summary>
+    /// Restablece la contraseña de un usuario utilizando un token de restablecimiento.
+    /// </summary>
+    /// 
+    [HttpPost("reset-password")]
+    public async Task<IActionResult> ResetPassword([FromBody] ResetPasswordDTO request)
+    {
+        try
+        {
+            if (request == null || string.IsNullOrEmpty(request.Token) || string.IsNullOrEmpty(request.NewPassword))
+            {
+                return BadRequest(new ApiResponse<string>(400, MessageService.Instance.GetMessage("controller400")));
+            }
+
+            var respuesta = await _iUsuarioService.ResetPasswordAsync(request.Token, request.NewPassword);
+            return respuesta;
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine("Error 500: " + ex);
+            return StatusCode(500, new ApiResponse<string>(500, MessageService.Instance.GetMessage("controllerUser500")));
+        }
+    }
+
 }

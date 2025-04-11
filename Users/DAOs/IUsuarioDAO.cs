@@ -67,4 +67,24 @@ Task<Usuario?> GetByEmailAsync(string email);
 /// <param name="usuario">Objeto usuario a desvincular.</param>
 void Detach(Usuario usuario);
 
+
+/// <summary>
+/// Busca un token de restablecimiento de contraseña por su valor.    
+/// </summary>
+Task<PasswordResetToken?> GetByToken(string token);
+
+
+/// <summary>
+/// Registramos los datos en la tabla PasswordResetToken  
+/// </summary>
+Task addResgistroPassword(PasswordResetToken registroPwd);
+
+/// <summary>
+/// Buscamos un token relacionado a un usuario
+/// si no lo encuenta regresamos null.
+/// </summary>
+Task<Usuario?> GetUsuarioToken(string token);
+
+
+
 }

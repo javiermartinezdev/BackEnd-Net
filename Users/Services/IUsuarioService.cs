@@ -86,4 +86,11 @@ public interface IUsuarioService
     /// <returns>Una acción que indica si la solicitud fue exitosa o no.</returns>
     Task<IActionResult> RequestPasswordResetAsync(string email);
 
+    /// <summary>
+    /// Restablece la contraseña de un usuario utilizando un token de restablecimiento.
+    /// </summary>
+    /// <param name="model">El modelo que contiene la nueva contraseña y el token de restablecimiento.</param>
+    /// <returns>Una acción que indica el resultado de la operación.</returns>
+     Task<IActionResult> ResetPasswordAsync(string Token, string NewPassword);
 }
+   

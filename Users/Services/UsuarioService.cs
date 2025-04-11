@@ -425,12 +425,12 @@ public class UsuarioService : IUsuarioService
 
         if (usuario == null)
         {
-            return new NotFoundObjectResult(new ApiResponse<string>(404, "RequestPasswordResetAsyncUser404"));
+            return new NotFoundObjectResult(new ApiResponse<string>(404, MessageService.Instance.GetMessage("RequestPasswordResetAsyncUser404")));
         }
 
         if (usuario.email_verified==false)
         {
-            return new BadRequestObjectResult(new ApiResponse<string>(400, "RequestPasswordResetAsyncUser400"));
+            return new BadRequestObjectResult(new ApiResponse<string>(400, MessageService.Instance.GetMessage("RequestPasswordResetAsyncUser400")));
         }
 
         // Generar token seguro para restablecimiento (GUID en Base64 sin caracteres conflictivos)
@@ -441,25 +441,75 @@ public class UsuarioService : IUsuarioService
             .Replace("=", "");
 
         usuario.password_reset_token = token;
-        usuario.password_reset_token_expiration = DateTime.UtcNow.AddHours(1); // Expira en 1 hora
+        var tiempoExpiration =  DateTime.UtcNow.AddHours(1); // Expira en 1 hora
+        usuario.password_reset_token_expiration = tiempoExpiration;
 
         await _iUsuarioDAO.UpdateAsync(usuario);
+
+        //se establecen lo datospara guardarlos en la base de datos.
+        PasswordResetToken resgristoPassword = new PasswordResetToken {
+            Token = token,
+            Email = email,
+            Expiration = tiempoExpiration,
+            UserId = usuario.id
+        };
+        await _iUsuarioDAO.addResgistroPassword(resgristoPassword);
+        
 
         try
         {
             if(usuario?.email == null){
-                return new NotFoundObjectResult(new ApiResponse<string>(404, "RequestPasswordResetAsyncUser404"));
+                return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("RequestPasswordResetAsyncUser404")));
             }
             
             await _emailService.SendPasswordResetEmail(usuario.email, token);
 
-            return new OkObjectResult(new ApiResponse<string>(200, "RequestPasswordResetAsyncUser200"));
+            return new OkObjectResult(new ApiResponse<string>(200, MessageService.Instance.GetMessage("RequestPasswordResetAsyncUser200")));
         }
         catch (Exception ex)
         {
             Console.WriteLine("Error 500: " + ex.Message);
-            return new ObjectResult(new ApiResponse<string>(500, "RequestPasswordResetAsyncUser500"));
+            return new ObjectResult(new ApiResponse<string>(500, "Algo paso en el email"));
         }
+
+    }
+
+    public async Task<IActionResult> ResetPasswordAsync(string Token, string NewPassword)
+    {
+        var existeTokenUsuario = await _iUsuarioDAO.GetUsuarioToken(Token);
+
+        if(existeTokenUsuario == null)
+        {
+            Console.WriteLine("El token expliro");
+            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("ResetPasswordAsyncUserNull404")));
+        }
+        
+        var existeToken = await _iUsuarioDAO.GetByToken(Token);
+        
+
+        if(existeToken == null || existeToken.Expiration < DateTime.UtcNow)
+        {
+            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("ResetPasswordAsyncUser404")));
+        }
+        
+        // Verificar que la nueva contraseña cumple con seguridad
+        if (NewPassword.Length < 8 || !NewPassword.Any(char.IsDigit) || !NewPassword.Any(char.IsLetter))
+        {
+            return new BadRequestObjectResult(new ApiResponse<string>(400,MessageService.Instance.GetMessage("ResetPasswordAsyncUser400Size")));
+        }
+       
+        var usuarioActualizar = await _iUsuarioDAO.GetByEmailAsync(existeToken.Email);
+        if(usuarioActualizar == null)
+        {
+            return new NotFoundObjectResult(new ApiResponse<string>(404,MessageService.Instance.GetMessage("ResetPasswordAsyncUser404")));
+        }
+        
+        usuarioActualizar.password = BCrypt.Net.BCrypt.HashPassword(NewPassword, 12);
+        usuarioActualizar.password_reset_token = null; // Limpiar el token
+        usuarioActualizar.password_reset_token_expiration = null; // Limpiar la expiración del token
+        await _iUsuarioDAO.UpdateAsync(usuarioActualizar);
+
+        return new OkObjectResult(new ApiResponse<string>(200,MessageService.Instance.GetMessage("ResetPasswordAsyncUser200")));
 
     }
 }

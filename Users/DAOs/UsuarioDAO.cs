@@ -177,4 +177,34 @@ public class UsuarioDAO : IUsuarioDAO
     }
 
 
+    /// <summary>
+    /// Registrar en la tabla passwordresettoken
+    /// los datos para validar.
+    /// </summary>
+    public async Task addResgistroPassword(PasswordResetToken registroPwd)
+    {
+        await _context.passwordresettoken.AddAsync(registroPwd);
+        await _context.SaveChangesAsync();
+    }
+
+
+    /// <summary>
+    /// Busca el token de la tabla PasswordResetToken
+    /// resultado encontrado o null si no existe.
+    /// </summary>
+    public async Task<PasswordResetToken?> GetByToken(string token)
+    {
+        return await _context.passwordresettoken
+            .FirstOrDefaultAsync(t => t.Token == token);
+        
+    }
+
+    /// <summary>
+    /// Busca el token relacionado a un usuario
+    /// </summary>
+    public async Task<Usuario?> GetUsuarioToken(string token)
+    {
+        return await _context.Users.FirstOrDefaultAsync(e => e.password_reset_token == token );
+    }
+
 }

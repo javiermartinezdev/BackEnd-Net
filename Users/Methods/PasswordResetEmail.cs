@@ -11,8 +11,8 @@ public class PasswordResetEmail
     {
         private readonly string _smtpServer = "smtp.gmail.com"; // O el servidor de tu elección
         private readonly int _smtpPort = 587; // Puerto SMTP
-        private readonly string _smtpUser = "tu-correo@gmail.com"; // Tu correo electrónico
-        private readonly string _smtpPassword = "tu-contraseña"; // Tu contraseña de correo o App Password
+        private readonly string _smtpUser = "arroyovelascofernandooctavio@gmail.com"; // Tu correo electrónico
+        private readonly string _smtpPassword = "thyfinpiqcgfenxu"; // Tu contraseña de correo o App Password
 
         public async Task SendPasswordResetEmail(string email, string token)
         {
