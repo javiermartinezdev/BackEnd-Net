@@ -419,6 +419,7 @@ public class UsuarioService : IUsuarioService
         return new OkObjectResult(new ApiResponse<string>(200,MessageService.Instance.GetMessage("ChangePasswordAsyncUser200")));  
     }
 
+    //restablecer contraseña
     public async Task<IActionResult> RequestPasswordResetAsync(string email)
     {
         var usuario = await _iUsuarioDAO.GetByEmailAsync(email);
@@ -473,7 +474,7 @@ public class UsuarioService : IUsuarioService
         }
 
     }
-
+    //Recibimos el token y la nueva contraeña
     public async Task<IActionResult> ResetPasswordAsync(string Token, string NewPassword)
     {
         var existeTokenUsuario = await _iUsuarioDAO.GetUsuarioToken(Token);

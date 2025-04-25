@@ -105,7 +105,7 @@ public sealed class MessageService //sealed aseguramos que no puedan heredar de 
             {"RequestPasswordResetAsyncUser200","Se ha enviado un correo con el enlace de restablecimiento."},
             
             {"ResetPasswordAsyncUser404","Los datos fallaron o el tiempo de espera se paso."},
-            {"ResetPasswordAsyncUser400Size","Contraseña invalida, favor de verificar los datos."},
+            {"ResetPasswordAsyncUser400Size","Contraseña invalida, favor de verificar los datos la contraseña debe tener al menos 8 caracteres, contiene al menos un dígito, contiene al menos una letra."},
             {"ResetPasswordAsyncUser200","La contraseña se actualizo con exito."},
             {"ResetPasswordAsyncUserNull404","Expiro la verificacion o ya se uso"}
         };
