@@ -34,11 +34,10 @@ Antes de ejecutar el proyecto, es necesario instalar **.NET**. Puedes descargarl
         ```
     - Este comando iniciará el proyecto
   
-5. **Disfruta**.
+5. **Ya puedes usar esta API Rest de manera local.**
 
 ## Contacto para el proyecto
 Si estás interesado en cómo se realizó este proyecto paso a paso por favor contacta a:
 
-**Javier Clara Martinez**
-- **Telefono**: 
+**Javier Clara Martinez**.
 
