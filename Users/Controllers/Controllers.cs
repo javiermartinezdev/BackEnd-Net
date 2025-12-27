@@ -36,7 +36,6 @@ public class usersController : ControllerBase
         _context = context;
         _jwtService = jwtService;
     }
-[AllowAnonymous]
     [HttpGet("users")]
     public async Task<IActionResult> GetAllUsersAsync(int? page, int? limit, string? sort, string? order, bool? is_active, bool? is_deleted, bool? is_superuser, bool? email_veridied)
     {
