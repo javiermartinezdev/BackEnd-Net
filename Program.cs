@@ -1,8 +1,12 @@
 using apitienda.Data;
+using apitienda.Services;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.IdentityModel.Tokens;
 using DotNetEnv;
 using productos.Data;
-
+using System.Text;
+using Microsoft.OpenApi.Models; // Import necesario para OpenApi
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -12,88 +16,115 @@ var builder = WebApplication.CreateBuilder(args);
 Env.Load();
 
 /// <summary>
-/// Obtiene la cadena de conexión a la base de datos desde las variables de entorno o configuración.
+/// Obtiene las cadenas de conexión.
 /// </summary>
-//var connectionString = builder.Configuration.GetConnectionString("DefaultConnection"); este es la linea original si sale mal la consulta poner esta y quitar la siguiente linea que lee el archivo .env
+var connectionStringUser = builder.Configuration.GetConnectionString("CONNECTIONSTRINGS__DEFAULTCONNECTIONUSERS");
 var connectionStringProducts = builder.Configuration.GetConnectionString("CONNECTIONSTRINGS__DEFAULTCONNECTIONPRODUCTS");
 
-var connectionStringUser = builder.Configuration.GetConnectionString("CONNECTIONSTRINGS__DEFAULTCONNECTIONUSERS");
 
 /// <summary>
-/// Configura el contexto de datos con la base de datos PostgreSQL.
+/// Configura los contextos de datos.
 /// </summary>
-builder.Services.AddDbContext<DataContext>(
-    options => options.UseNpgsql(connectionStringUser)
-);
+builder.Services.AddDbContext<DataContext>(options => options.UseNpgsql(connectionStringUser));
+builder.Services.AddDbContext<DataContextProduct>(options => options.UseNpgsql(connectionStringProducts));
 
 /// <summary>
-/// Configura el contexto de datos con la base de datos PostgreSQL.
+/// Registra servicios personalizados.
 /// </summary>
-builder.Services.AddDbContext<DataContextProduct>(
-    options => options.UseNpgsql(connectionStringProducts)
-);
-
-
-/// <summary>
-/// Registra los servicios de acceso a datos, mapeo y lógica de negocio en la inyección de dependencias.
-/// </summary>
-builder.Services.AddScoped<IUsuarioDAO,UsuarioDAO>();
+builder.Services.AddScoped<IUsuarioDAO, UsuarioDAO>();
 builder.Services.AddScoped<UsuarioMapper>();
 builder.Services.AddScoped<CreateUserMapper>();
-builder.Services.AddScoped<IUsuarioService,UsuarioService>(); // Aquí agregamos UsuarioService
+builder.Services.AddScoped<IUsuarioService, UsuarioService>();
 builder.Services.AddScoped<PasswordResetEmail>();
 
-builder.Services.AddScoped<IProductDAO, ProductDAO>(); 
+builder.Services.AddScoped<IProductDAO, ProductDAO>();
 builder.Services.AddScoped<IProductService, ProductService>();
 builder.Services.AddScoped<ProductMapper>();
 builder.Services.AddScoped<CreateProductMapper>();
 
+// Agrega el servicio JwtService
+builder.Services.AddScoped<JwtService>();
 
 /// <summary>
-/// Agrega los servicios necesarios para habilitar los controladores y el modelo MVC.
+/// Agrega controladores y swagger.
 /// </summary>
 builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer(); // Habilita la exploración de los puntos finales para que Swagger pueda generar documentación
-builder.Services.AddSwaggerGen(); // Agrega el servicio de Swagger para generar documentación interactiva de la API
+builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddSwaggerGen(c =>
+{
+    c.SwaggerDoc("v1", new OpenApiInfo { Title = "Mi API", Version = "v1" });
+
+    // Configuración para JWT en Swagger
+    c.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
+    {
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey,
+        Scheme = "Bearer",
+        BearerFormat = "JWT",
+        In = ParameterLocation.Header,
+        Description = "Ingrese 'Bearer' seguido de un espacio y luego el token JWT."
+    });
+
+    c.AddSecurityRequirement(new OpenApiSecurityRequirement
+    {
+        {
+            new OpenApiSecurityScheme
+            {
+                Reference = new OpenApiReference 
+                {
+                    Type = ReferenceType.SecurityScheme,
+                    Id = "Bearer"
+                }
+            },
+            new string[] {}
+        }
+    });
+});
 
 /// <summary>
-/// Configura la autenticación y autorización.
+/// Configura la autenticación JWT.
 /// </summary>
-builder.Services.AddAuthorization();
-builder.Services.AddAuthentication("Bearer").AddJwtBearer();
+var jwtKey = builder.Configuration["Jwt:Key"];
+var jwtIssuer = builder.Configuration["Jwt:Issuer"];
+var jwtAudience = builder.Configuration["Jwt:Audience"];
 
+builder.Services.AddAuthentication(options =>
+{
+    options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+    options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+})
+.AddJwtBearer(options =>
+{
+    options.TokenValidationParameters = new TokenValidationParameters
+    {
+        ValidateIssuer = true,
+        ValidIssuer = jwtIssuer,
+        ValidateAudience = true,
+        ValidAudience = jwtAudience,
+        ValidateIssuerSigningKey = true,
+        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtKey)),
+        ValidateLifetime = true,
+        ClockSkew = TimeSpan.Zero
+    };
+});
+
+builder.Services.AddAuthorization();
 
 var app = builder.Build();
 
-/// <summary>
-/// Verifica si el entorno es de desarrollo.
-/// </summary>
-if (app.Environment.IsDevelopment())
-{
-    app.UseSwagger(); // Habilita Swagger en el entorno de desarrollo para generar la documentación interactiva
-    app.UseSwaggerUI(); // Habilita la interfaz de usuario de Swagger para explorar la API
-}
+//Se elimino la condición.
+app.UseSwagger();
+app.UseSwaggerUI();
 
 
-/// <summary>
-/// Habilita la redirección HTTPS.
-/// </summary>
 app.UseHttpsRedirection();
 
-/// <summary>
-/// Habilita la autenticación y autorización.
-/// </summary>
 app.UseAuthentication();
 app.UseAuthorization();
 
-/// <summary>
-/// Mapea los controladores.
-/// </summary>
 app.MapControllers();
 
-/// <summary>
-/// Define una ruta GET para la raíz de la API.
-/// </summary>
 app.MapGet("/", () => "Hola mundo! Nuestra primera API usando C#");
-app.Run();
 
+app.Run();

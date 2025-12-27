@@ -1,26 +1,25 @@
 {
   "format": 1,
   "restore": {
-    "/home/octaviio/Documentos/BackEnd-Net/apitienda.csproj": {}
+    "C:\\Users\\PC\\Desktop\\dotnet\\BackEnd-Net\\apitienda.csproj": {}
   },
   "projects": {
-    "/home/octaviio/Documentos/BackEnd-Net/apitienda.csproj": {
+    "C:\\Users\\PC\\Desktop\\dotnet\\BackEnd-Net\\apitienda.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "/home/octaviio/Documentos/BackEnd-Net/apitienda.csproj",
+        "projectUniqueName": "C:\\Users\\PC\\Desktop\\dotnet\\BackEnd-Net\\apitienda.csproj",
         "projectName": "apitienda",
-        "projectPath": "/home/octaviio/Documentos/BackEnd-Net/apitienda.csproj",
-        "packagesPath": "/home/octaviio/.nuget/packages/",
-        "outputPath": "/home/octaviio/Documentos/BackEnd-Net/obj/",
+        "projectPath": "C:\\Users\\PC\\Desktop\\dotnet\\BackEnd-Net\\apitienda.csproj",
+        "packagesPath": "C:\\Users\\PC\\.nuget\\packages\\",
+        "outputPath": "C:\\Users\\PC\\Desktop\\dotnet\\BackEnd-Net\\obj\\",
         "projectStyle": "PackageReference",
         "configFilePaths": [
-          "/home/octaviio/.nuget/NuGet/NuGet.Config"
+          "C:\\Users\\PC\\AppData\\Roaming\\NuGet\\NuGet.Config"
         ],
         "originalTargetFrameworks": [
           "net9.0"
         ],
         "sources": {
-          "/usr/lib/dotnet/library-packs": {},
           "https://api.nuget.org/v3/index.json": {}
         },
         "frameworks": {
@@ -63,7 +62,7 @@
             },
             "Microsoft.AspNetCore.Authentication.JwtBearer": {
               "target": "Package",
-              "version": "[9.0.1, )"
+              "version": "[9.0.5, )"
             },
             "Microsoft.AspNetCore.OpenApi": {
               "target": "Package",
@@ -90,6 +89,10 @@
             "Swashbuckle.AspNetCore": {
               "target": "Package",
               "version": "[7.2.0, )"
+            },
+            "System.IdentityModel.Tokens.Jwt": {
+              "target": "Package",
+              "version": "[8.10.0, )"
             }
           },
           "imports": [
@@ -111,7 +114,7 @@
               "privateAssets": "all"
             }
           },
-          "runtimeIdentifierGraphPath": "/usr/lib/dotnet/sdk/9.0.105/PortableRuntimeIdentifierGraph.json"
+          "runtimeIdentifierGraphPath": "C:\\Program Files\\dotnet\\sdk\\9.0.112/PortableRuntimeIdentifierGraph.json"
         }
       }
     }

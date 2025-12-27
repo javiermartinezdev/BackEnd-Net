@@ -1,17 +1,19 @@
-using Microsoft.AspNetCore.Mvc;
-using System;
+using Microsoft.AspNetCore.Authorization;
 using System.Collections.Generic;
+using Microsoft.AspNetCore.Mvc;
 using System.Threading.Tasks;
 using productos.Models;
+using System;
 
 
-[Route("api/product")]
+[Route("api/")]
 [ApiController]
-public class ProductController : ControllerBase
+[Authorize]  // Protege todas las acciones del controlador
+public class productController : ControllerBase
 {
     private readonly IProductService _iProductService;
 
-    public ProductController(IProductService productService)
+    public productController(IProductService productService)
     {
         _iProductService = productService;
     }
@@ -19,7 +21,7 @@ public class ProductController : ControllerBase
     /// <summary>
     /// Obtiene los productos de la base de datos con parametros opcionales.
     /// </summary>
-    [HttpGet("product")]
+    [HttpGet("products")]
     public async Task<IActionResult> GetAll2(int? page,int? limit,string? sort,string? order,bool? status,bool? is_deleted,string? type)
     {
         try{
@@ -220,7 +222,7 @@ public class ProductController : ControllerBase
     /// <summary>
     //  buscar por nombre o descripcion.
     /// </summary>
-    [HttpGet("products/search/{search}")]
+    [HttpGet("products/search/")]
     public async Task<IActionResult> GetProductsSearch(string search)
     {
         try{
@@ -243,7 +245,7 @@ public class ProductController : ControllerBase
     /// <summary>
     //  Listar productos por rango de precios.
     /// </summary>
-    [HttpGet("{min_price}/{max_price}")]
+    [HttpGet("products/{min_price}/{max_price}")]
     public async Task<IActionResult> GetProductsPrice(decimal min_price,decimal max_price)
     {
         try{

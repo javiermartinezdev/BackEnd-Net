@@ -3,7 +3,7 @@ Este repositorio contiene una serie de prácticas para aprender y desarrollar AP
 ### Tecnologías utilizadas
 - **.NET**
 - **C#**
-- **Postgrest**
+- **PostgreSQL**
 
 ### Requisitos Previos:
 Antes de ejecutar el proyecto, es necesario instalar **.NET**. Puedes descargarlo e instalarlo desde el [sitio web oficial](https://dotnet.microsoft.com/es-es/download). Ademas de instalar Postgrest en tu computadora.
@@ -39,13 +39,6 @@ Antes de ejecutar el proyecto, es necesario instalar **.NET**. Puedes descargarl
 ## Contacto para el proyecto
 Si estás interesado en cómo se realizó este proyecto paso a paso por favor contacta a:
 
-**Dr. José Luis Quiroz Fabian**
-- **Número de cubículo**: T-169
-- **Ubicación**: Edificio T de CBI, Universidad Autónoma Metropolitana Unidad Iztapalapa
-- **Telefono**: 58 04 46 00 ext. 1169
+**Javier Clara Martinez**
+- **Telefono**: 
 
-
-Realizado por:
-José Luis Quiroz Fabian. 
-Javier Clara Martinez.
-Fernando Octavio Arroyo Velasco.

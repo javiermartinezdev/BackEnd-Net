@@ -33,6 +33,11 @@ namespace apitienda.Data
         public DbSet<PasswordResetToken> passwordresettoken { get; set; }
 
         /// <summary>
+        /// Define una propiedad DbSet para acceder a la tabla de TokenBlacklist en la base de datos.
+        /// </summary>
+        public DbSet<TokenBlacklist> TokenBlacklist { get; set; }
+
+        /// <summary>
         /// Configura la cadena de conexión para la base de datos PostgreSQL.
         /// </summary>
         /// <param name="optionsBuilder">El constructor de opciones para configurar el contexto de la base de datos.</param>
